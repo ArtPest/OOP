@@ -3,11 +3,11 @@
 using namespace std;
 
 int main(){
-    Four a("333"), b("1"), c, d;
-    c = a + b;
-    d = a;
-    a.print();
-    b.print();
-    c.print();
+    Four a("3333"), b("1000"), c("1"), d, e, f;
+    d = a + c;
+    e = b - c;
+    f = a - a;
     d.print();
+    e.print();
+    f.print();
 }
