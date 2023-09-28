@@ -15,8 +15,7 @@ public:
     }
     
     Four(const initializer_list<unsigned char> &t): size(t.size()), data(new unsigned char[t.size()]){
-        for(size_t i = 0; i < t.size(); ++i)
-            data[i] = t[i];
+        //
     }
 
     Four(const string &t): size(t.length()), data(new unsigned char[t.length()]){
@@ -102,8 +101,7 @@ public:
             rem = sum / 4;
         }
         if(rem){
-            ++result.size;
-            result.data.push_back(rem);
+            //
         }
         return result;
     }
