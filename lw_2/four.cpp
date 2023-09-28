@@ -105,9 +105,37 @@ public:
             for(size_t i = 0; i < max_s; ++i)
                 tmp[i] = result.data[i];
             tmp[max_s] = rema;
-            result.size = max_s + 1;
             delete[] result.data;
             result.data = tmp;
+            ++result.size;
+        }
+        return result;
+    }
+    
+    Four operator -(const Four& other) const{
+        Four result;
+        if(*this < other)
+            return result;
+        result = *this;
+        unsigned char borrow = 0;
+        for(size_t i = 0; i < size; ++i){
+            int dif = result.data[i] - borrow;
+            if(i < other.size)
+                dif -= other.data[i];
+            if(dif < 0){
+                dif += 4;
+                borrow = 1;
+            } else
+                borrow = 0;
+            result.data[i] = dif;
+        }
+        while(result.data[result.size - 1] == 0 and result.size > 1){
+            unsigned char* tmp = new unsigned char[result.size - 1];
+            for(size_t i = 0; i < result.size - 1; ++i)
+                tmp[i] = result.data[i];
+            delete[] result.data;
+            result.data = tmp;
+            --result.size;
         }
         return result;
     }
