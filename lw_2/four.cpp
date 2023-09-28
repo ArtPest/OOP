@@ -117,16 +117,16 @@ public:
         if(*this < other)
             return result;
         result = *this;
-        unsigned char borrow = 0;
+        unsigned char borr = 0;
         for(size_t i = 0; i < size; ++i){
-            int dif = result.data[i] - borrow;
+            int dif = result.data[i] - borr;
             if(i < other.size)
                 dif -= other.data[i];
             if(dif < 0){
                 dif += 4;
-                borrow = 1;
+                borr = 1;
             } else
-                borrow = 0;
+                borr = 0;
             result.data[i] = dif;
         }
         while(result.data[result.size - 1] == 0 and result.size > 1){
@@ -140,3 +140,13 @@ public:
         return result;
     }
 };
+
+int main(){
+    Four a("3333"), b("1000"), c("1"), d, e, f;
+    d = a + c;
+    e = b - c;
+    f = a - a;
+    d.print();
+    e.print();
+    f.print();
+}
