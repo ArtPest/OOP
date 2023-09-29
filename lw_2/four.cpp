@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class Four{
+class Four final{
     unsigned char* data;
     size_t size;
     
@@ -35,7 +35,7 @@ public:
         other.data = nullptr;
     }
     
-    virtual ~Four() noexcept{
+    ~Four() noexcept{
         if(data != nullptr)
             delete[] data;
     }
@@ -117,7 +117,7 @@ public:
     Four operator -(const Four& other) const{
         Four result;
         if(*this < other)
-            return result;
+            throw invalid_argument("IMPOSSIBLE_SUBTRACTION");
         result = *this;
         unsigned char borr = 0;
         for(size_t i = 0; i < size; ++i){
