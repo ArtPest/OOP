@@ -1,5 +1,6 @@
 #include <iostream>
 #include <initializer_list>
+#include <cstring>
 #include "four.h"
 
 using namespace std;
@@ -26,8 +27,7 @@ public:
     }
 
     Four(const Four& other): size(other.size), data(new unsigned char[other.size]){
-        for(size_t i = 0; i < other.size; ++i)
-            data[i] = other.data[i];
+        memcpy(data, other.data, other.size);
     }
     
     Four(Four&& other) noexcept: size(other.size), data(other.data){
