@@ -11,5 +11,5 @@ int main(){
     d.print();
     e.print();
     f.print();
-    cout << a < b << '\n';
+    cout << (a > b ? "YES" : "NO") << '\n';
 }
