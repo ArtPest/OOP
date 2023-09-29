@@ -10,4 +10,5 @@ int main(){
     d.print();
     e.print();
     f.print();
+    cout << a < b << '\n';
 }
