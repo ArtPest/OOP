@@ -18,10 +18,8 @@ public:
     }
     
     Four(const std::initializer_list<unsigned char> &t): size(t.size()), data(new unsigned char[t.size()]){
-        size_t i = 0;
-        for(auto it = t.begin(); it != t.end(); ++it, ++i){
+        for(auto it = t.begin(), int i = 0; it != t.end(); ++it, ++i)
             data[i] = *it;
-        }
     }
 
     Four(const string &t): size(t.length()), data(new unsigned char[t.length()]){
