@@ -8,7 +8,7 @@ class Four {
 public:
     Four();
     Four(const size_t &n, unsigned char t = 0);
-    //Four(const initializer_list<unsigned char>& t);
+    Four(const initializer_list<unsigned char>& t);
     Four(const std::string &t);
     Four(const Four& other);
     Four(Four&& other) noexcept;
