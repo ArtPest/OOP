@@ -17,9 +17,12 @@ public:
             data[i] = t;
     }
     
-    /*Four(const initializer_list<unsigned char> &t): size(t.size()), data(new unsigned char[t.size()]){
-        //
-    }*/
+    Four(const std::initializer_list<unsigned char> &t): size(t.size()), data(new unsigned char[t.size()]){
+        size_t i = 0;
+        for(auto it = t.begin(); it != t.end(); ++it, ++i){
+            data[i] = *it;
+        }
+    }
 
     Four(const string &t): size(t.length()), data(new unsigned char[t.length()]){
         for(size_t i = 0; i < t.length(); ++i)
