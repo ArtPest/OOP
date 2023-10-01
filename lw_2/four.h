@@ -1,7 +1,7 @@
 #include <iostream>
 #include <initializer_list>
 
-class Four {
+class Four final{
     unsigned char* data;
     size_t size;
 
