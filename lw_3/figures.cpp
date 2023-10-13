@@ -6,6 +6,21 @@ struct Point final {
     float x, y;
 
     Point(float a = 0.0, float b = 0.0): x(a), y(b) {}
+    
+    Point& operator +=(const Point& other) {
+        x += other.x;
+        y += other.y;
+        return *this;
+    }
+    
+    Point& operator /=(float f) {
+        if(f != 0) {
+            x /= f;
+            y /= f;
+        }
+        //else
+        return *this;
+    }
         
     friend ostream& operator <<(ostream& os, const Point& p) {
         return os << "(" << p.x << ", " << p.y << ")\n";
@@ -26,11 +41,9 @@ protected:
     Point center() {
         Point result;
         for(size_t i = 0; i < n; ++i) {
-            result.x += vertices[i].x;
-            result.y += vertices[i].y;
+            result += vertices[i];
         }
-        result.x /= n;
-        result.y /= n;
+        result /= n;
         return result;
     }
     
@@ -78,10 +91,9 @@ public:
 
 
 int main() {
-    Figure f;
+    cout << "Square!\n";
     Square s;
     cin >> s;
-    cout << f;
     cout << s;
     return 0;
 }
