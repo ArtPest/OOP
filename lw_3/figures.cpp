@@ -37,13 +37,15 @@ protected:
     Point* vertices;
     
 public:
+    Figure() = default;
+
     Figure(const Figure& other): n(other.n) {
         vertices = new Point[n];
         for (size_t i = 0; i < n; ++i)
             vertices[i] = other.vertices[i];
     }
     
-    Figure& operator=(const Figure& other) {
+    Figure& operator =(const Figure& other) {
         if (this == &other)
             return *this;
         delete[] vertices;
@@ -58,7 +60,7 @@ public:
         delete[] vertices;
     }
     
-    virtual Point center() const {
+    Point center() const {
         Point result;
         for(size_t i = 0; i < n; ++i) {
             result += vertices[i];
@@ -109,24 +111,56 @@ public:
 
 class Square final: public Figure {
 public:
-    Square() {
+    Square(): Figure() {
         n = 4;
         vertices = new Point[n];
     }
-    //Square(Point a, Point b, Point c, Point d) {}
+        
+    float length() const {
+        return max(abs(vertices[0].x - vertices[1].x), abs(vertices[0].y - vertices[1].y));
+    }
     
-    
+    float area() const override {
+        return length() * length();
+    }
 };
 
+class Rectangle final: public Figure {
+public:
+    Rectangle(): Figure() {
+        n = 4;
+        vertices = new Point[n];
+    }
+    
+    float length() const {
+        return max(max(abs(vertices[0].x - vertices[1].x), abs(vertices[0].y - vertices[1].y)),
+            max(abs(vertices[0].x - vertices[2].x), abs(vertices[0].y - vertices[2].y)));
+    }
+    
+    float width() const {
+        return min(max(abs(vertices[0].x - vertices[1].x), abs(vertices[0].y - vertices[1].y)),
+            max(abs(vertices[0].x - vertices[2].x), abs(vertices[0].y - vertices[2].y)));
+    }
+    
+    float area() const override {
+        return length() * width();
+    }
+};
 
 int main() {
     Figure f;
     cout << "Figure!\n";
     cin >> f;
     cout << f;
-    cout << "Square!\n";
+    
+    cout << "\nSquare!\n";
     Square s;
     cin >> s;
     cout << s;
+    
+    cout << "\nRectangle!\n";
+    Rectangle r;
+    cin >> r;
+    cout << r;
     return 0;
 }
