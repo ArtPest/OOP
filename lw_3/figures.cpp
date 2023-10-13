@@ -2,20 +2,33 @@
 
 using namespace std;
 
-class Figure{
-protected:
-    float x0, y0, area = -1;
-
-public:
-    Figure(float x, float y): x0(x), y0(y){}
+struct Point{
+    float x, y;
     
-    friend ostream& operator<<(std::ostream& os, const Figure& fig) {
-        return os << "Figure center: (" << fig.x0 << ", " << fig.y0 << ")\nArea: " << fig.area << '\n';
+    Point(float a = 0.0, float b = 0.0): x(a), y(b) {}
+    
+    friend ostream& operator<<(ostream& os, const Point& p){
+        return os << "(" << p.x << ", " << p.y << ")\n";
     }
 };
 
+class Figure{
+protected:
+    //
+    
+public:
+    //
+};
+
+class Square: class Figure{
+    float length = -1.0;
+
+public:
+
+}
+
+
 int main(){
-    Figure a(0, 0);
-    cout << a;
+    //
     return 0;
 }
