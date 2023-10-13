@@ -2,30 +2,30 @@
 
 using namespace std;
 
-struct Point final{
+struct Point final {
     float x, y;
 
     Point(float a = 0.0, float b = 0.0): x(a), y(b) {}
         
-    friend ostream& operator <<(ostream& os, const Point& p){
+    friend ostream& operator <<(ostream& os, const Point& p) {
         return os << "(" << p.x << ", " << p.y << ")\n";
     }
     
-    friend istream& operator >>(istream& is, Point& p){
+    friend istream& operator >>(istream& is, Point& p) {
         return is >> p.x >> p.y;
     }
 };
 
-class Figure{
+class Figure {
 protected:
     int n;
     Point o;
     Point* vertices;
     float area = -1.0;
     
-    Point center(){
+    Point center() {
         Point result;
-        for(size_t i = 0; i < n; ++i){
+        for(size_t i = 0; i < n; ++i) {
             result.x += vertices[i].x;
             result.y += vertices[i].y;
         }
@@ -39,7 +39,7 @@ public:
     
     //explicit virtual operator double() const noexcept = 0;
     
-    friend ostream& operator <<(ostream& os, const Figure& f){
+    friend ostream& operator <<(ostream& os, const Figure& f) {
         if(f.vertices != nullptr){
             os << "Coordinates:\n";
             for(size_t i = 0; i < f.n; ++i)
@@ -49,10 +49,10 @@ public:
         return os;
     }
     
-    friend istream& operator >>(istream& is, Figure& f){
+    friend istream& operator >>(istream& is, Figure& f) {
         cout << "Type in number of vertices: ";
         is >> f.n;
-        if(f.n == 0){
+        if(f.n == 0) {
             f.vertices = nullptr;
             return is;
         }
@@ -66,9 +66,9 @@ public:
 }
 };
 
-class Square final: public Figure{
+class Square final: public Figure {
 public:
-    Square(){
+    Square() {
         n = 4;
         vertices = new Point[n];
         o = center();
@@ -77,7 +77,7 @@ public:
 };
 
 
-int main(){
+int main() {
     Figure f;
     Square s;
     cin >> s;
