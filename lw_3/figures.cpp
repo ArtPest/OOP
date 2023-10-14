@@ -6,12 +6,17 @@ using namespace std;
 
 struct Point final {
     float x, y;
-
     Point(float a = 0.0, float b = 0.0): x(a), y(b) {}
     
     Point& operator +=(const Point& other) {
         x += other.x;
         y += other.y;
+        return *this;
+    }
+    
+    Point& operator -(const Point& other) {
+        x -= other.x;
+        y -= other.y;
         return *this;
     }
     
@@ -27,7 +32,7 @@ struct Point final {
     float distance(const Point& other) const {
         return sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
     }
-        
+    
     friend ostream& operator <<(ostream& os, const Point& p) {
         return os << "(" << p.x << ", " << p.y << ")\n";
     }
@@ -37,10 +42,19 @@ struct Point final {
     }
 };
 
+bool parallel(const Point& p1, const Point& p2, const Point& p3, const Point& p4) {
+    if (p1.x - p2.x == 0 && p3.x - p4.x == 0)
+        return true;
+    else if (p1.x - p2.x == 0 || p3.x - p4.x == 0)
+        return false;
+    return (p2.y - p1.y) / (p2.x - p1.x) == (p4.y - p3.y) / (p4.x - p3.x);
+}
+
 class Figure {
 protected:
     int n = -1;
     Point* vertices;
+    
     void sort_ver() {
         if(n <= 1)
             return;
@@ -206,23 +220,44 @@ public:
     }
 };
 
-/*class Trapezium final: public Figure {
+class Trapezoid final: public Figure {
 public:
-    Trapezium(): Figure() {
+    Trapezoid(): Figure() {
         n = 4;
         vertices = new Point[n];
     }
     
-    float top() {}
-    
-    float bottom() {}
-    
-    float heigth() {}
-    
-    float area() const override {
-        return 0.5 * heigth() * (top() + bottom());
+    float top() {
+        if(parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
+            return min(vertices[0].distance(1), vertices[2].distance(3));
+        return min(vertices[0].distance(2), vertices[1].distance(3));    
     }
-};*/
+    
+    float bottom() {
+        if(parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
+            return max(vertices[0].distance(1), vertices[2].distance(3));
+        return max(vertices[0].distance(2), vertices[1].distance(3));
+    }
+    
+    float heigth() {
+        return area() * 2 / (top() + bottom());
+    }
+    
+    friend istream& operator >>(istream& is, Trapezoid& f) {
+        if(f.vertices != nullptr)
+            delete[] f.vertices;
+        f.vertices = new Point[f.n];
+        cout << "Type in coordinates:\n";
+        for (size_t i = 0; i < f.n; ++i)
+            is >> f.vertices[i];
+        f.sort_ver();
+        /*if((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
+            and not parallel(vertices[0], vertices[2], vertices[1], vertices[3]))
+            or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
+            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))*/
+        return is;
+    }
+};
 
 int main() {
     Figure f;
@@ -239,5 +274,10 @@ int main() {
     Rectangle r;
     cin >> r;
     cout << r;
+    
+    cout << "\nTrapezoid!\n";
+    Trapezoid t;
+    cin >> t;
+    cout << t;
     return 0;
 }
