@@ -147,6 +147,24 @@ public:
     }
 };
 
+class Trapezium final: public Figure {
+public:
+    Trapezium(): Figure() {
+        n = 4;
+        vertices = new Point[n];
+    }
+    
+    float top() {}
+    
+    float bottom() {}
+    
+    float heigth() {}
+    
+    float area() const override {
+        return 0.5 * heigth() * (top() + bottom());
+    }
+};
+
 int main() {
     Figure f;
     cout << "Figure!\n";
