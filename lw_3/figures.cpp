@@ -185,6 +185,10 @@ public:
             or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))*/
         return is;
     }
+    
+    bool operator ==(const Square& other) const {
+        return length() == other.length();
+    }
 };
 
 class Rectangle final: public Figure {
@@ -218,6 +222,10 @@ public:
             or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))*/
         return is;
     }
+    
+    bool operator ==(const Rectangle& other) const {
+        return length() == other.length() and width() == other.width();
+    }
 };
 
 class Trapezoid final: public Figure {
@@ -227,19 +235,19 @@ public:
         vertices = new Point[n];
     }
     
-    float top() {
+    float top() const {
         if(parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
             return min(vertices[0].distance(1), vertices[2].distance(3));
         return min(vertices[0].distance(2), vertices[1].distance(3));    
     }
     
-    float bottom() {
+    float bottom() const {
         if(parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
             return max(vertices[0].distance(1), vertices[2].distance(3));
         return max(vertices[0].distance(2), vertices[1].distance(3));
     }
     
-    float heigth() {
+    float heigth() const {
         return area() * 2 / (top() + bottom());
     }
     
@@ -256,6 +264,10 @@ public:
             or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
             and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))*/
         return is;
+    }
+    
+    bool operator ==(const Trapezoid& other) const {
+        return top() == other.top() and bottom() == other.bottom() and heigth() == other.heigth();
     }
 };
 
