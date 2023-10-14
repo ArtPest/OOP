@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -21,6 +23,10 @@ struct Point final {
         //else
         return *this;
     }
+    
+    float distance(const Point& other) const {
+        return sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
+    }
         
     friend ostream& operator <<(ostream& os, const Point& p) {
         return os << "(" << p.x << ", " << p.y << ")\n";
@@ -35,6 +41,33 @@ class Figure {
 protected:
     int n = -1;
     Point* vertices;
+    void sort_ver() {
+        if(n <= 1)
+            return;
+        size_t p0_index = 0;
+        for(size_t i = 1; i < n; i++)
+            if ((vertices[i].y < vertices[p0_index].y) || 
+                (vertices[i].y == vertices[p0_index].y && vertices[i].x > vertices[p0_index].x))
+                p0_index = i;
+        swap(vertices[0], vertices[p0_index]);
+        sort(vertices + 1, vertices + n, [this](const Point &p1, const Point &p2) {
+            float o = (vertices[1].y - vertices[0].y) * (p2.x - vertices[0].x) - 
+                      (vertices[1].x - vertices[0].x) * (p2.y - vertices[0].y);
+            if(o == 0)
+                return vertices[0].distance(p1) < vertices[0].distance(p2);
+            else
+                return o > 0;
+        });
+        size_t m = 1;
+        for(size_t i = 1; i < n; i++){
+            while (i < n - 1 && ((vertices[i].y - vertices[0].y) * (vertices[i + 1].x - vertices[0].x) - 
+                                 (vertices[i].x - vertices[0].x) * (vertices[i + 1].y - vertices[0].y)) == 0)
+                i++;
+            vertices[m] = vertices[i];
+            m++;
+        }
+        n = m;
+    }
     
 public:
     Figure() = default;
@@ -80,9 +113,11 @@ public:
     }
         
     friend istream& operator >>(istream& is, Figure& f) {
-        cout << "Type in number of vertices: ";
-        is >> f.n;
-        //if(f.n < 0) {}
+        if(f.n == -1){
+            cout << "Type in number of vertices: ";
+            is >> f.n;
+            //if(f.n < 0) {}
+        }
         if(f.n <= 0) {
             f.vertices = nullptr;
             return is;
@@ -93,6 +128,7 @@ public:
         cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
+        f.sort_ver();
         return is;
     }
     
@@ -115,7 +151,7 @@ public:
     }
         
     float length() const {
-        return max(abs(vertices[0].x - vertices[1].x), abs(vertices[0].y - vertices[1].y));
+        return vertices[0].distance(vertices[1]);
     }
     
     float area() const override {
@@ -131,13 +167,11 @@ public:
     }
     
     float length() const {
-        return max(max(abs(vertices[0].x - vertices[1].x), abs(vertices[0].y - vertices[1].y)),
-            max(abs(vertices[0].x - vertices[2].x), abs(vertices[0].y - vertices[2].y)));
+        return max(vertices[0].distance(vertices[1]), vertices[0].distance(vertices[2]));
     }
     
     float width() const {
-        return min(max(abs(vertices[0].x - vertices[1].x), abs(vertices[0].y - vertices[1].y)),
-            max(abs(vertices[0].x - vertices[2].x), abs(vertices[0].y - vertices[2].y)));
+        return min(vertices[0].distance(vertices[1]), vertices[0].distance(vertices[2]));
     }
     
     float area() const override {
@@ -145,7 +179,7 @@ public:
     }
 };
 
-class Trapezium final: public Figure {
+/*class Trapezium final: public Figure {
 public:
     Trapezium(): Figure() {
         n = 4;
@@ -161,7 +195,7 @@ public:
     float area() const override {
         return 0.5 * heigth() * (top() + bottom());
     }
-};
+};*/
 
 int main() {
     Figure f;
