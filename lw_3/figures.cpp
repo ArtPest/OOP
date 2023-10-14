@@ -156,6 +156,10 @@ public:
         os << "Center: " << f.center() << "Area: " << f.area() << '\n';
         return os;
     }
+    
+    virtual explicit operator double() const {
+        return static_cast<double>(area());
+    }
 };
 
 class Square final: public Figure {
@@ -188,6 +192,10 @@ public:
     
     bool operator ==(const Square& other) const {
         return length() == other.length();
+    }
+    
+    explicit operator double() const override {
+        return static_cast<double>(area());
     }
 };
 
@@ -225,6 +233,10 @@ public:
     
     bool operator ==(const Rectangle& other) const {
         return length() == other.length() and width() == other.width();
+    }
+    
+    explicit operator double() const override {
+        return static_cast<double>(area());
     }
 };
 
@@ -268,6 +280,10 @@ public:
     
     bool operator ==(const Trapezoid& other) const {
         return top() == other.top() and bottom() == other.bottom() and heigth() == other.heigth();
+    }
+    
+    explicit operator double() const override {
+        return static_cast<double>(area());
     }
 };
 
