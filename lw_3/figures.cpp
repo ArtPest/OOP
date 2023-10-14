@@ -129,6 +129,7 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
+        //if(f.area() <= 0)
         return is;
     }
     
@@ -157,6 +158,19 @@ public:
     float area() const override {
         return length() * length();
     }
+    
+    friend istream& operator >>(istream& is, Square& f) {
+        if(f.vertices != nullptr)
+            delete[] f.vertices;
+        f.vertices = new Point[f.n];
+        cout << "Type in coordinates:\n";
+        for (size_t i = 0; i < f.n; ++i)
+            is >> f.vertices[i];
+        f.sort_ver();
+        /*if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[2]))
+            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))*/
+        return is;
+    }
 };
 
 class Rectangle final: public Figure {
@@ -176,6 +190,19 @@ public:
     
     float area() const override {
         return length() * width();
+    }
+    
+    friend istream& operator >>(istream& is, Rectangle& f) {
+        if(f.vertices != nullptr)
+            delete[] f.vertices;
+        f.vertices = new Point[f.n];
+        cout << "Type in coordinates:\n";
+        for (size_t i = 0; i < f.n; ++i)
+            is >> f.vertices[i];
+        f.sort_ver();
+        /*if((f.vertices[0].distance(f.vertices[1]) != f.vertices[2].distance(f.vertices[3]))
+            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))*/
+        return is;
     }
 };
 
