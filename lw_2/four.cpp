@@ -309,7 +309,6 @@ int main() {
     Trapezoid t_0;
     cin >> t_0;
     cout << t_0;
-    return 0;
     
     cout << "\nAnother trapezoid!\n";
     Trapezoid t_1;
@@ -317,8 +316,8 @@ int main() {
     cout << t_1;
     
     if(t_0 == t_1)
-        cout << "\n Trapezoids are equal!\n";
+        cout << "\nTrapezoids are equal!\n";
     else
-        cout << "\n Trapezoids are bot equal!\n";
+        cout << "\nTrapezoids are not equal!\n";
     return 0;
 }
