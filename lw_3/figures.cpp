@@ -80,11 +80,9 @@ public:
     }
         
     friend istream& operator >>(istream& is, Figure& f) {
-        if(f.n == -1) {
-            cout << "Type in number of vertices: ";
-            is >> f.n;
-            //if(f.n < 0)
-        }
+        cout << "Type in number of vertices: ";
+        is >> f.n;
+        //if(f.n < 0) {}
         if(f.n <= 0) {
             f.vertices = nullptr;
             return is;
