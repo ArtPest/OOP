@@ -215,6 +215,7 @@ public:
     }
     
     float area() const override {
+        cout << length() << ' ' << width() << '\n';
         return length() * width();
     }
     
@@ -279,6 +280,14 @@ public:
     }
     
     bool operator ==(const Trapezoid& other) const {
+        cout << vertices[0].distance(vertices[1]) + 
+            vertices[1].distance(vertices[2]) + 
+            vertices[2].distance(vertices[3]) + 
+            vertices[3].distance(vertices[0]) + heigth()
+            << ' ' << other.vertices[0].distance(other.vertices[1]) + 
+            other.vertices[1].distance(other.vertices[2]) +
+            other.vertices[2].distance(other.vertices[3]) +
+            other.vertices[3].distance(other.vertices[0]) + other.heigth() << '\n';
         return vertices[0].distance(vertices[1]) + 
             vertices[1].distance(vertices[2]) + 
             vertices[2].distance(vertices[3]) + 
@@ -300,10 +309,10 @@ int main() {
     cin >> f;
     cout << f;*/
     
-    cout << "\nSquare!\n";
+    /*cout << "\nSquare!\n";
     Square s;
     cin >> s;
-    cout << s;
+    cout << s;*/
     
     cout << "\nRectangle!\n";
     Rectangle r;
