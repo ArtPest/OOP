@@ -279,7 +279,14 @@ public:
     }
     
     bool operator ==(const Trapezoid& other) const {
-        return top() == other.top() and bottom() == other.bottom() and heigth() == other.heigth();
+        return vertices[0].distance(vertices[1]) + 
+            vertices[1].distance(vertices[2]) + 
+            vertices[2].distance(vertices[3]) + 
+            vertices[3].distance(vertices[0]) + heigth() ==
+            other.vertices[0].distance(other.vertices[1]) + 
+            other.vertices[1].distance(other.vertices[2]) +
+            other.vertices[2].distance(other.vertices[3]) +
+            other.vertices[3].distance(other.vertices[0]) + other.heigth();
     }
     
     explicit operator double() const override {
@@ -288,10 +295,10 @@ public:
 };
 
 int main() {
-    Figure f;
+    /*Figure f;
     cout << "Figure!\n";
     cin >> f;
-    cout << f;
+    cout << f;*/
     
     cout << "\nSquare!\n";
     Square s;
