@@ -207,11 +207,11 @@ public:
     }
     
     float length() const {
-        return max(vertices[0].distance(vertices[1]), vertices[0].distance(vertices[2]));
+        return max(vertices[0].distance(vertices[1]), vertices[0].distance(vertices[3]));
     }
     
     float width() const {
-        return min(vertices[0].distance(vertices[1]), vertices[0].distance(vertices[2]));
+        return min(vertices[0].distance(vertices[1]), vertices[0].distance(vertices[3]));
     }
     
     float area() const override {
@@ -311,8 +311,18 @@ int main() {
     cout << r;
     
     cout << "\nTrapezoid!\n";
-    Trapezoid t;
-    cin >> t;
-    cout << t;
+    Trapezoid t_0;
+    cin >> t_0;
+    cout << t_0;
+    
+    cout << "\nAnother Trapezoid!\n";
+    Trapezoid t_1;
+    cin >> t_1;
+    cout << t_1;
+    
+    if(t_0 == t_1)
+        cout << "\nTrapezoids are equal!";
+    else
+        cout << "\nTrapezoids are not equal!";
     return 0;
 }
