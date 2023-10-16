@@ -77,6 +77,22 @@ public:
             vertices[i] = other.vertices[i];
         return *this;
     }
+    
+    Figure(Figure&& other): n(other.n), vertices(other.vertices) {
+        other.n = -1;
+        other.vertices = nullptr;
+    }
+    
+    Figure& operator =(Figure&& other) {
+        if (this == &other)
+            return *this;
+        delete[] vertices;
+        n = other.n;
+        vertices = other.vertices;
+        other.n = -1;
+        other.vertices = nullptr;
+        return *this;
+    }
 
     virtual ~Figure() noexcept {
         delete[] vertices;
