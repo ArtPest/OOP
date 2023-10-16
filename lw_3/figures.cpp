@@ -302,15 +302,15 @@ public:
 };
 
 int main() {
-    /*Figure f;
+    Figure f;
     cout << "Figure!\n";
     cin >> f;
-    cout << f;*/
+    cout << f;
     
-    /*cout << "\nSquare!\n";
+    cout << "\nSquare!\n";
     Square s;
     cin >> s;
-    cout << s;*/
+    cout << s;
     
     cout << "\nRectangle!\n";
     Rectangle r;
