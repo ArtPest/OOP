@@ -2,6 +2,9 @@
 #include <cmath>
 #include <algorithm>
 
+#define EPS 1e-6
+#define RUDE_EPS 0.1
+
 using namespace std;
 
 struct Point final {
@@ -14,14 +17,13 @@ struct Point final {
         return *this;
     }
     
-    Point& operator -(const Point& other) {
-        x -= other.x;
-        y -= other.y;
-        return *this;
+    Point operator -(const Point& other) {
+        Point result(x - other.x, y - other.y);
+        return result;
     }
     
     Point& operator /=(float f) {
-        if(f != 0) {
+        if(f >= EPS) {
             x /= f;
             y /= f;
         }
@@ -44,11 +46,11 @@ struct Point final {
 };
 
 bool parallel(const Point& p1, const Point& p2, const Point& p3, const Point& p4) {
-    if (p1.x - p2.x == 0 && p3.x - p4.x == 0)
+    if(abs(p1.x - p2.x) < EPS and abs(p3.x - p4.x) < EPS)
         return true;
-    else if (p1.x - p2.x == 0 || p3.x - p4.x == 0)
+    else if(abs(p1.x - p2.x) < EPS or abs(p3.x - p4.x) < EPS)
         return false;
-    return (p2.y - p1.y) / (p2.x - p1.x) == (p4.y - p3.y) / (p4.x - p3.x);
+    return abs((p2.y - p1.y) / (p2.x - p1.x) - (p4.y - p3.y) / (p4.x - p3.x)) < EPS;
 }
 
 class Figure {
@@ -66,12 +68,12 @@ public:
     }
     
     Figure& operator =(const Figure& other) {
-        if (this == &other)
+        if(this == &other)
             return *this;
         delete[] vertices;
         n = other.n;
         vertices = new Point[n];
-        for (size_t i = 0; i < n; ++i)
+        for(size_t i = 0; i < n; ++i)
             vertices[i] = other.vertices[i];
         return *this;
     }
@@ -89,6 +91,13 @@ public:
         return result;
     }
     
+    virtual float perimeter() const {
+        float result = vertices[n - 1].distance(vertices[0]);
+        for(size_t i = 0; i < n - 1; ++i)
+            result += vertices[i].distance(vertices[i + 1]);
+        return result;
+    }
+    
     virtual float area() const {
         auto tr_ar = [](const Point& A, const Point& B, const Point& C) -> float {
             return 0.5 * abs(A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
@@ -101,7 +110,6 @@ public:
         
     friend istream& operator >>(istream& is, Figure& f) {
         if(f.n == -1){
-            cout << "Type in number of vertices: ";
             is >> f.n;
             if(f.n < 0)
                 throw invalid_argument("IMPOSSIBLE_FIGURE");
@@ -113,7 +121,6 @@ public:
         if(f.vertices != nullptr)
             delete[] f.vertices;
         f.vertices = new Point[f.n];
-        cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         if(f.area() <= 0)
@@ -155,7 +162,6 @@ public:
         if(f.vertices != nullptr)
             delete[] f.vertices;
         f.vertices = new Point[f.n];
-        cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[3]))
@@ -165,7 +171,7 @@ public:
     }
     
     bool operator ==(const Square& other) const {
-        return length() == other.length();
+        return abs(length() - other.length()) < EPS;
     }
     
     explicit operator double() const override {
@@ -196,7 +202,6 @@ public:
         if(f.vertices != nullptr)
             delete[] f.vertices;
         f.vertices = new Point[f.n];
-        cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         if((f.vertices[0].distance(f.vertices[1]) != f.vertices[2].distance(f.vertices[3]))
@@ -206,7 +211,7 @@ public:
     }
     
     bool operator ==(const Rectangle& other) const {
-        return length() == other.length() and width() == other.width();
+        return abs(length() - other.length()) < EPS and abs(width() - other.width()) < EPS;
     }
     
     explicit operator double() const override {
@@ -223,17 +228,17 @@ public:
     
     float top() const {
         if(parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
-            return min(vertices[0].distance(1), vertices[2].distance(3));
-        return min(vertices[0].distance(2), vertices[1].distance(3));    
+            return min(vertices[0].distance(vertices[1]), vertices[2].distance(vertices[3]));
+        return min(vertices[1].distance(vertices[2]), vertices[3].distance(vertices[0]));    
     }
     
     float bottom() const {
         if(parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
-            return max(vertices[0].distance(1), vertices[2].distance(3));
-        return max(vertices[0].distance(2), vertices[1].distance(3));
+            return max(vertices[0].distance(vertices[1]), vertices[2].distance(vertices[3]));
+        return max(vertices[1].distance(vertices[2]), vertices[3].distance(vertices[0]));
     }
     
-    float heigth() const {
+    float height() const {
         return area() * 2 / (top() + bottom());
     }
     
@@ -241,7 +246,6 @@ public:
         if(f.vertices != nullptr)
             delete[] f.vertices;
         f.vertices = new Point[f.n];
-        cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         if((parallel(f.vertices[0], f.vertices[1], f.vertices[2], f.vertices[3]) 
@@ -253,15 +257,7 @@ public:
     }
     
     bool operator ==(const Trapezoid& other) const {
-        //Не работает. Скорее всего, из-за неточного исчисления корней чисел с плавающей точкой
-        return vertices[0].distance(vertices[1]) + 
-            vertices[1].distance(vertices[2]) + 
-            vertices[2].distance(vertices[3]) + 
-            vertices[3].distance(vertices[0]) + heigth() ==
-            other.vertices[0].distance(other.vertices[1]) + 
-            other.vertices[1].distance(other.vertices[2]) +
-            other.vertices[2].distance(other.vertices[3]) +
-            other.vertices[3].distance(other.vertices[0]) + other.heigth();
+        return abs(perimeter() + height() - (other.perimeter() + other.height())) < RUDE_EPS;
     }
     
     explicit operator double() const override {
@@ -270,10 +266,10 @@ public:
 };
 
 int main() {
-    /*Figure f;
+    Figure f;
     cout << "Figure!\n";
     cin >> f;
-    cout << f;*/
+    cout << f;
     
     cout << "\nSquare!\n";
     Square s;
