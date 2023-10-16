@@ -188,7 +188,7 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
-        if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[2]))
+        if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[3]))
             or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
             throw invalid_argument("IMPOSSIBLE_SQUARE");
         return is;
@@ -302,10 +302,10 @@ public:
 };
 
 int main() {
-    Figure f;
+    /*Figure f;
     cout << "Figure!\n";
     cin >> f;
-    cout << f;
+    cout << f;*/
     
     cout << "\nSquare!\n";
     Square s;
