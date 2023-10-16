@@ -56,34 +56,6 @@ protected:
     int n = -1;
     Point* vertices;
     
-    void sort_ver() {
-        if(n <= 1)
-            return;
-        size_t p0_index = 0;
-        for(size_t i = 1; i < n; i++)
-            if ((vertices[i].y < vertices[p0_index].y) || 
-                (vertices[i].y == vertices[p0_index].y && vertices[i].x < vertices[p0_index].x))
-                p0_index = i;
-        swap(vertices[0], vertices[p0_index]);
-        sort(vertices + 1, vertices + n, [this](const Point &p1, const Point &p2) {
-            float o = (p1.y - vertices[0].y) * (p2.x - vertices[0].x) - 
-                      (p1.x - vertices[0].x) * (p2.y - vertices[0].y);
-            if(o == 0)
-                return vertices[0].distance(p1) < vertices[0].distance(p2);
-            else
-                return o > 0;
-        });
-        size_t m = 1;
-        for(size_t i = 1; i < n; i++){
-            while (i < n - 1 && ((vertices[i].y - vertices[0].y) * (vertices[i + 1].x - vertices[0].x) - 
-                                 (vertices[i].x - vertices[0].x) * (vertices[i + 1].y - vertices[0].y)) == 0)
-                i++;
-            vertices[m] = vertices[i];
-            m++;
-        }
-        n = m;
-    }
-    
 public:
     Figure() = default;
 
@@ -144,7 +116,6 @@ public:
         cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        f.sort_ver();
         if(f.area() <= 0)
             throw invalid_argument("IMPOSSIBLE_FIGURE");
         return is;
@@ -187,7 +158,6 @@ public:
         cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        f.sort_ver();
         if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[3]))
             or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
             throw invalid_argument("IMPOSSIBLE_SQUARE");
@@ -229,7 +199,6 @@ public:
         cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        f.sort_ver();
         if((f.vertices[0].distance(f.vertices[1]) != f.vertices[2].distance(f.vertices[3]))
             or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
             throw invalid_argument("IMPOSSIBLE_RECTANGLE");
@@ -275,7 +244,6 @@ public:
         cout << "Type in coordinates:\n";
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        f.sort_ver();
         if((parallel(f.vertices[0], f.vertices[1], f.vertices[2], f.vertices[3]) 
             and not parallel(f.vertices[0], f.vertices[2], f.vertices[1], f.vertices[3]))
             or (parallel(f.vertices[0], f.vertices[2], f.vertices[1], f.vertices[3]) 
