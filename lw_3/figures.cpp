@@ -276,10 +276,10 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
-        if((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
-            and not parallel(vertices[0], vertices[2], vertices[1], vertices[3]))
-            or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
-            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))
+        if((parallel(f.vertices[0], f.vertices[1], f.vertices[2], f.vertices[3]) 
+            and not parallel(f.vertices[0], f.vertices[2], f.vertices[1], f.vertices[3]))
+            or (parallel(f.vertices[0], f.vertices[2], f.vertices[1], f.vertices[3]) 
+            and not parallel(f.vertices[0], f.vertices[1], f.vertices[2], f.vertices[3])))
             throw invalid_argument("IMPOSSIBLE_TRAPEZOID");
         return is;
     }
