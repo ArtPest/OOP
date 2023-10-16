@@ -25,7 +25,8 @@ struct Point final {
             x /= f;
             y /= f;
         }
-        //else
+        else
+            throw invalid_argument("ZERO_DIVISION");
         return *this;
     }
     
@@ -61,12 +62,12 @@ protected:
         size_t p0_index = 0;
         for(size_t i = 1; i < n; i++)
             if ((vertices[i].y < vertices[p0_index].y) || 
-                (vertices[i].y == vertices[p0_index].y && vertices[i].x > vertices[p0_index].x))
+                (vertices[i].y == vertices[p0_index].y && vertices[i].x < vertices[p0_index].x))
                 p0_index = i;
         swap(vertices[0], vertices[p0_index]);
         sort(vertices + 1, vertices + n, [this](const Point &p1, const Point &p2) {
-            float o = (vertices[1].y - vertices[0].y) * (p2.x - vertices[0].x) - 
-                      (vertices[1].x - vertices[0].x) * (p2.y - vertices[0].y);
+            float o = (p1.y - vertices[0].y) * (p2.x - vertices[0].x) - 
+                      (p1.x - vertices[0].x) * (p2.y - vertices[0].y);
             if(o == 0)
                 return vertices[0].distance(p1) < vertices[0].distance(p2);
             else
@@ -130,7 +131,8 @@ public:
         if(f.n == -1){
             cout << "Type in number of vertices: ";
             is >> f.n;
-            //if(f.n < 0) {}
+            if(f.n < 0)
+                throw invalid_argument("IMPOSSIBLE_FIGURE");
         }
         if(f.n <= 0) {
             f.vertices = nullptr;
@@ -143,7 +145,8 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
-        //if(f.area() <= 0)
+        if(f.area() <= 0)
+            throw invalid_argument("IMPOSSIBLE_FIGURE");
         return is;
     }
     
@@ -185,8 +188,9 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
-        /*if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[2]))
-            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))*/
+        if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[2]))
+            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
+            throw invalid_argument("IMPOSSIBLE_SQUARE");
         return is;
     }
     
@@ -215,7 +219,6 @@ public:
     }
     
     float area() const override {
-        cout << length() << ' ' << width() << '\n';
         return length() * width();
     }
     
@@ -227,8 +230,9 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
-        /*if((f.vertices[0].distance(f.vertices[1]) != f.vertices[2].distance(f.vertices[3]))
-            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))*/
+        if((f.vertices[0].distance(f.vertices[1]) != f.vertices[2].distance(f.vertices[3]))
+            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
+            throw invalid_argument("IMPOSSIBLE_RECTANGLE");
         return is;
     }
     
@@ -272,22 +276,16 @@ public:
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
         f.sort_ver();
-        /*if((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
+        if((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
             and not parallel(vertices[0], vertices[2], vertices[1], vertices[3]))
             or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
-            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))*/
+            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))
+            throw invalid_argument("IMPOSSIBLE_TRAPEZOID");
         return is;
     }
     
     bool operator ==(const Trapezoid& other) const {
-        cout << vertices[0].distance(vertices[1]) + 
-            vertices[1].distance(vertices[2]) + 
-            vertices[2].distance(vertices[3]) + 
-            vertices[3].distance(vertices[0]) + heigth()
-            << ' ' << other.vertices[0].distance(other.vertices[1]) + 
-            other.vertices[1].distance(other.vertices[2]) +
-            other.vertices[2].distance(other.vertices[3]) +
-            other.vertices[3].distance(other.vertices[0]) + other.heigth() << '\n';
+        //Не работает. Скорее всего, из-за неточного исчисления корней чисел с плавающей точкой
         return vertices[0].distance(vertices[1]) + 
             vertices[1].distance(vertices[2]) + 
             vertices[2].distance(vertices[3]) + 
