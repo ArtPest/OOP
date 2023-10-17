@@ -23,12 +23,12 @@ struct Point final {
     }
     
     Point& operator /=(float f) {
-        if(f >= EPS) {
+        if(fabs(f) <= EPS)
+            throw invalid_argument("ZERO_DIVISION");
+        else {
             x /= f;
             y /= f;
         }
-        else
-            throw invalid_argument("ZERO_DIVISION");
         return *this;
     }
     
