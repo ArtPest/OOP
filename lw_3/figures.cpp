@@ -100,11 +100,19 @@ public:
     
     Point center() const {
         Point result;
-        for(size_t i = 0; i < n; ++i) {
+        for(size_t i = 0; i < n; ++i)
             result += vertices[i];
-        }
         result /= n;
         return result;
+    }
+    
+    void add_point(const Point p) {
+        Point* result = new Point[++n];
+        for(size_t i = 0; i < n - 1; ++i)
+            result[i] = vertices[i];
+        result[n] = p;
+        delete[] vertices;
+        vertices = result;
     }
     
     virtual float perimeter() const {
@@ -163,7 +171,6 @@ class Square final: public Figure {
 public:
     Square(): Figure() {
         n = 4;
-        vertices = new Point[n];
     }
         
     float length() const {
@@ -199,7 +206,6 @@ class Rectangle final: public Figure {
 public:
     Rectangle(): Figure() {
         n = 4;
-        vertices = new Point[n];
     }
     
     float length() const {
@@ -239,7 +245,6 @@ class Trapezoid final: public Figure {
 public:
     Trapezoid(): Figure() {
         n = 4;
-        vertices = new Point[n];
     }
     
     float top() const {
@@ -285,6 +290,10 @@ int main() {
     Figure f;
     cout << "Figure!\n";
     cin >> f;
+    cout << f;
+    Point p;
+    cin >> p;
+    f.add_point(p);
     cout << f;
     
     cout << "\nSquare!\n";
