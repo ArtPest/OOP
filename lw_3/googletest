@@ -1,0 +1,40 @@
+#include <iostream>
+#include "gtest/gtest.h"
+#include "figures.cpp"
+
+TEST(figure_test, center_test) {
+    Figure f;
+    Point p1(0.0, 0.0);
+    Point p2(1.0, 3.0);
+    Point p3(2.0, 0.0);
+    f.add_point(p1);
+    f.add_point(p2);
+    f.add_point(p3);
+    Point center = f.center();
+    EXPECT_FLOAT_EQ(center.x, 1.0);
+    EXPECT_FLOAT_EQ(center.y, 1.0);
+}
+
+TEST(square_test, length_test) {
+    Square s;
+    Point a(0, 0), b(0, 2), c(2, 2), d(2, 0);
+    s.add_points(a, b, c, d);
+    float length = s.length();
+    EXPECT_FLOAT_EQ(length, 2.0);
+}
+
+TEST(rectangle_test, area_test) {
+    Rectangle r;
+    Point a(0, 0), b(0, 4), c(3, 4), d(3, 0);
+    r.add_points(a, b, c, d);
+    float area = r.area();
+    EXPECT_FLOAT_EQ(area, 12.0);
+}
+
+TEST(trapezoid_test, top_test) {
+    Trapezoid t;
+    Point a(0, 0), b(1, 1), c(2, 1), d(3, 0);
+    t.add_points(a, b, c, d);
+    float top = t.top();
+    EXPECT_FLOAT_EQ(top, 1.0);
+}
