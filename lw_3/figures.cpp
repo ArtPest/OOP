@@ -58,6 +58,10 @@ protected:
     int n = -1;
     Point* vertices;
     
+    virtual bool check() const {
+        return !(area() <= 0.0);
+    }
+    
 public:
     Figure() = default;
 
@@ -147,7 +151,7 @@ public:
         f.vertices = new Point[f.n];
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        if(f.area() <= 0)
+        if(!f.check())
             throw invalid_argument("IMPOSSIBLE_FIGURE");
         return is;
     }
@@ -168,6 +172,11 @@ public:
 };
 
 class Square final: public Figure {
+    virtual bool check() const override {
+        return !(abs(vertices[0].distance(vertices[1]) - vertices[0].distance(vertices[3])) > EPS
+            or abs(vertices[0].distance(vertices[2]) != vertices[1].distance(vertices[3])) > EPS);
+    }
+    
 public:
     Square(): Figure() {
         n = 4;
@@ -188,8 +197,7 @@ public:
         vertices[1] = b;
         vertices[2] = c;
         vertices[3] = d;
-        if(abs(vertices[0].distance(vertices[1]) - vertices[0].distance(vertices[3])) > EPS
-            or abs(vertices[0].distance(vertices[2]) != vertices[1].distance(vertices[3])) > EPS)
+        if(!check())
             throw invalid_argument("IMPOSSIBLE_SQUARE");
     }
     
@@ -199,8 +207,7 @@ public:
         f.vertices = new Point[f.n];
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        if(abs(f.vertices[0].distance(f.vertices[1]) - f.vertices[0].distance(f.vertices[3])) > EPS
-            or abs(f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3])) > EPS)
+        if(!f.check())
             throw invalid_argument("IMPOSSIBLE_SQUARE");
         return is;
     }
@@ -215,6 +222,11 @@ public:
 };
 
 class Rectangle final: public Figure {
+    virtual bool check() const override {
+        return !(abs(vertices[0].distance(vertices[1]) - vertices[2].distance(vertices[3])) > EPS
+            or abs(vertices[0].distance(vertices[2]) - vertices[1].distance(vertices[3])) > EPS);
+    }
+    
 public:
     Rectangle(): Figure() {
         n = 4;
@@ -239,8 +251,7 @@ public:
         vertices[1] = b;
         vertices[2] = c;
         vertices[3] = d;
-        if(abs(vertices[0].distance(vertices[1]) - vertices[2].distance(vertices[3])) > EPS
-            or abs(vertices[0].distance(vertices[2]) - vertices[1].distance(vertices[3])) > EPS)
+        if(!check())
             throw invalid_argument("IMPOSSIBLE_RECTANGLE");
     }
     
@@ -250,8 +261,7 @@ public:
         f.vertices = new Point[f.n];
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        if(abs(f.vertices[0].distance(f.vertices[1]) - f.vertices[2].distance(f.vertices[3])) > EPS
-            or abs(f.vertices[0].distance(f.vertices[2]) - f.vertices[1].distance(f.vertices[3])) > EPS)
+        if(!f.check())
             throw invalid_argument("IMPOSSIBLE_RECTANGLE");
         return is;
     }
@@ -266,6 +276,13 @@ public:
 };
 
 class Trapezoid final: public Figure {
+    virtual bool check() const override {
+        return !((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
+            and not parallel(vertices[0], vertices[2], vertices[1], vertices[3]))
+            or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
+            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])));
+    }
+    
 public:
     Trapezoid(): Figure() {
         n = 4;
@@ -294,10 +311,7 @@ public:
         vertices[1] = b;
         vertices[2] = c;
         vertices[3] = d;
-        if((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
-            and not parallel(vertices[0], vertices[2], vertices[1], vertices[3]))
-            or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
-            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))
+        if(!check())
             throw invalid_argument("IMPOSSIBLE_TRAPEZOID");
     }
     
@@ -307,10 +321,7 @@ public:
         f.vertices = new Point[f.n];
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        if((parallel(f.vertices[0], f.vertices[1], f.vertices[2], f.vertices[3]) 
-            and not parallel(f.vertices[0], f.vertices[2], f.vertices[1], f.vertices[3]))
-            or (parallel(f.vertices[0], f.vertices[2], f.vertices[1], f.vertices[3]) 
-            and not parallel(f.vertices[0], f.vertices[1], f.vertices[2], f.vertices[3])))
+        if(!f.check())
             throw invalid_argument("IMPOSSIBLE_TRAPEZOID");
         return is;
     }
