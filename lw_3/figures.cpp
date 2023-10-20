@@ -107,10 +107,10 @@ public:
     }
     
     void add_point(const Point p) {
-        Point* result = new Point[++n];
-        for(size_t i = 0; i < n - 1; ++i)
+        Point* result = new Point[n + 1];
+        for(size_t i = 0; i < n; ++i)
             result[i] = vertices[i];
-        result[n] = p;
+        result[n++] = p;
         delete[] vertices;
         vertices = result;
     }
