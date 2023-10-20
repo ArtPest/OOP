@@ -106,7 +106,7 @@ public:
         return result;
     }
     
-    void add_point(const Point p) {
+    virtual void add_point(const Point p) {
         Point* result = new Point[n + 1];
         for(size_t i = 0; i < n; ++i)
             result[i] = vertices[i];
@@ -171,6 +171,7 @@ class Square final: public Figure {
 public:
     Square(): Figure() {
         n = 4;
+        vertices = nullptr;
     }
         
     float length() const {
@@ -181,14 +182,25 @@ public:
         return length() * length();
     }
     
+    void add_points(const Point& a, const Point& b, const Point& c, const Point& d) {
+        vertices = new Point[4];
+        vertices[0] = a;
+        vertices[1] = b;
+        vertices[2] = c;
+        vertices[3] = d;
+        if(abs(vertices[0].distance(vertices[1]) - vertices[0].distance(vertices[3])) > EPS
+            or abs(vertices[0].distance(vertices[2]) != vertices[1].distance(vertices[3])) > EPS)
+            throw invalid_argument("IMPOSSIBLE_SQUARE");
+    }
+    
     friend istream& operator >>(istream& is, Square& f) {
         if(f.vertices != nullptr)
             delete[] f.vertices;
         f.vertices = new Point[f.n];
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        if((f.vertices[0].distance(f.vertices[1]) != f.vertices[0].distance(f.vertices[3]))
-            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
+        if(abs(f.vertices[0].distance(f.vertices[1]) - f.vertices[0].distance(f.vertices[3])) > EPS
+            or abs(f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3])) > EPS)
             throw invalid_argument("IMPOSSIBLE_SQUARE");
         return is;
     }
@@ -206,6 +218,7 @@ class Rectangle final: public Figure {
 public:
     Rectangle(): Figure() {
         n = 4;
+        vertices = nullptr;
     }
     
     float length() const {
@@ -220,14 +233,25 @@ public:
         return length() * width();
     }
     
+    void add_points(const Point& a, const Point& b, const Point& c, const Point& d) {
+        vertices = new Point[4];
+        vertices[0] = a;
+        vertices[1] = b;
+        vertices[2] = c;
+        vertices[3] = d;
+        if(abs(vertices[0].distance(vertices[1]) - vertices[2].distance(vertices[3])) > EPS
+            or abs(vertices[0].distance(vertices[2]) - vertices[1].distance(vertices[3])) > EPS)
+            throw invalid_argument("IMPOSSIBLE_RECTANGLE");
+    }
+    
     friend istream& operator >>(istream& is, Rectangle& f) {
         if(f.vertices != nullptr)
             delete[] f.vertices;
         f.vertices = new Point[f.n];
         for (size_t i = 0; i < f.n; ++i)
             is >> f.vertices[i];
-        if((f.vertices[0].distance(f.vertices[1]) != f.vertices[2].distance(f.vertices[3]))
-            or f.vertices[0].distance(f.vertices[2]) != f.vertices[1].distance(f.vertices[3]))
+        if(abs(f.vertices[0].distance(f.vertices[1]) - f.vertices[2].distance(f.vertices[3])) > EPS
+            or abs(f.vertices[0].distance(f.vertices[2]) - f.vertices[1].distance(f.vertices[3])) > EPS)
             throw invalid_argument("IMPOSSIBLE_RECTANGLE");
         return is;
     }
@@ -245,6 +269,7 @@ class Trapezoid final: public Figure {
 public:
     Trapezoid(): Figure() {
         n = 4;
+        vertices = nullptr;
     }
     
     float top() const {
@@ -261,6 +286,19 @@ public:
     
     float height() const {
         return area() * 2 / (top() + bottom());
+    }
+    
+    void add_points(const Point& a, const Point& b, const Point& c, const Point& d) {
+        vertices = new Point[4];
+        vertices[0] = a;
+        vertices[1] = b;
+        vertices[2] = c;
+        vertices[3] = d;
+        if((parallel(vertices[0], vertices[1], vertices[2], vertices[3]) 
+            and not parallel(vertices[0], vertices[2], vertices[1], vertices[3]))
+            or (parallel(vertices[0], vertices[2], vertices[1], vertices[3]) 
+            and not parallel(vertices[0], vertices[1], vertices[2], vertices[3])))
+            throw invalid_argument("IMPOSSIBLE_TRAPEZOID");
     }
     
     friend istream& operator >>(istream& is, Trapezoid& f) {
@@ -298,7 +336,8 @@ int main() {
     
     cout << "\nSquare!\n";
     Square s;
-    cin >> s;
+    Point a(0, 0), b(0, 2), c(2, 2), d(2, 0);
+    s.add_points(a, b, c, d);
     cout << s;
     
     cout << "\nRectangle!\n";
