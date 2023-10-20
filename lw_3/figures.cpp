@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include <algorithm>
 
@@ -134,6 +135,15 @@ public:
         for(size_t i = 1; i < n - 1; ++i)
             result += tr_ar(vertices[0], vertices[i], vertices[i + 1]);
         return result;
+    }
+    
+    virtual string get_info() {
+        ostringstream os;
+        os << n << ' ';
+        for(size_t i = 0; i < n - 1; ++i)
+            os << vertices[i].x << ' ' << vertices[i].y << ' ';
+        os << vertices[n - 1].x << ' ' << vertices[n - 1].y;
+        return os.str();
     }
         
     friend istream& operator >>(istream& is, Figure& f) {
