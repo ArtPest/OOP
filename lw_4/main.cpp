@@ -300,7 +300,7 @@ public:
     Trapezoid(): Figure<T>(4) {}
     
     T top() const {
-        if (parallel(this->vertices[0], this->vertices[1], this->vertices[2], this->vertices[3]))
+        if (parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
             return min(this->vertices[0].distance(this->vertices[1]), this->vertices[2].distance(this->vertices[3]));
         return min(this->vertices[1].distance(this->vertices[2]), this->vertices[3].distance(this->vertices[0]));
     }
