@@ -261,6 +261,7 @@ class Rectangle: public Figure<T> {
         return !(fabs(this -> vertices[0].distance(this -> vertices[1]) - this -> vertices[2].distance(this -> vertices[3])) > EPS
             or fabs(this -> vertices[0].distance(this -> vertices[2]) - this -> vertices[1].distance(this -> vertices[3])) > EPS);
     }
+
 public:
     Rectangle(): Figure<T>(4) {}
 
