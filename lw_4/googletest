@@ -48,7 +48,7 @@ TEST(figure_test, istream_test) {
 
 TEST(figure_test, ostream_test) {
     Figure<float> f;
-    Point<float><float> p1(0.0, 0.0);
+    Point<float> p1(0.0, 0.0);
     Point<float> p2(1.0, 3.0);
     Point<float> p3(2.0, 0.0);
     f.add_point(p1);
