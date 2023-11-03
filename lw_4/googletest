@@ -1,1 +1,61 @@
+#include <iostream>
+#include "gtest/gtest.h"
+#include "figures.cpp"
 
+TEST(figure_test, center_test) {
+    Figure<float> f;
+    Point<float> p1(0.0, 0.0);
+    Point<float> p2(1.0, 3.0);
+    Point<float> p3(2.0, 0.0);
+    f.add_point(p1);
+    f.add_point(p2);
+    f.add_point(p3);
+    Point center = f.center();
+    EXPECT_FLOAT_EQ(center.x, 1.0);
+    EXPECT_FLOAT_EQ(center.y, 1.0);
+}
+
+TEST(square_test, length_test) {
+    Square<float> s;
+    Point<float> a(0, 0), b(0, 2), c(2, 2), d(2, 0);
+    s.add_points(a, b, c, d);
+    float length = s.length();
+    EXPECT_FLOAT_EQ(length, 2.0);
+}
+
+TEST(rectangle_test, area_test) {
+    Rectangle<float> r;
+    Point<float> a(0, 0), b(0, 4), c(3, 4), d(3, 0);
+    r.add_points(a, b, c, d);
+    float area = r.area();
+    EXPECT_FLOAT_EQ(area, 12.0);
+}
+
+TEST(trapezoid_test, top_test) {
+    Trapezoid<float> t;
+    Point<float> a(0, 0), b(1, 1), c(2, 1), d(3, 0);
+    t.add_points(a, b, c, d);
+    float top = t.top();
+    EXPECT_FLOAT_EQ(top, 1.0);
+}
+
+TEST(figure_test, istream_test) {
+    istringstream is("3 0 0 1 3 2 0");
+    figure<float> f;
+    is >> f;
+    EXPECT_STRING_EQ(is.str(), f.get_info());
+}
+
+TEST(figure_test, ostream_test) {
+    Figure<float> f;
+    Point<float><float> p1(0.0, 0.0);
+    Point<float> p2(1.0, 3.0);
+    Point<float> p3(2.0, 0.0);
+    f.add_point(p1);
+    f.add_point(p2);
+    f.add_point(p3);
+    ostringstream os;
+    os << f;
+    string s = "Coordinates:\n(0, 0)\n(1, 3)\n(2, 0)\nCenter: (1, 1)\nArea: 3";
+    EXPECT_STRING_EQ(os.str(), s);
+}
