@@ -62,14 +62,14 @@ struct Point {
 
 template <typename T>
 bool parallel(const Point<T>& p1, const Point<T>& p2, const Point<T>& p3, const Point<T>& p4) {
-    if (abs(p1.x - p2.x) < EPS && abs(p3.x - p4.x) < EPS)
+    if (fabs(p1.x - p2.x) < EPS && fabs(p3.x - p4.x) < EPS)
         return true;
-    else if (abs(p1.x - p2.x) < EPS || abs(p3.x - p4.x) < EPS)
+    else if (fabs(p1.x - p2.x) < EPS || fabs(p3.x - p4.x) < EPS)
         return false;
-    return abs((p2.y - p1.y) / (p2.x - p1.x) - (p4.y - p3.y) / (p4.x - p3.x)) < EPS;
+    return fabs((p2.y - p1.y) / (p2.x - p1.x) - (p4.y - p3.y) / (p4.x - p3.x)) < EPS;
 }
 
-template <typename T>
+template<typename T>
 class Figure {
 protected:
     int n = -1;
@@ -147,7 +147,7 @@ public:
 
     virtual T area() const {
         auto tr_ar = [](const Point<T>& A, const Point<T>& B, const Point<T>& C) -> T {
-            return 0.5 * abs(A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+            return 0.5 * fabs(A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
         };
         T result = 0.0;
         for (size_t i = 1; i < n - 1; ++i)
@@ -208,8 +208,13 @@ public:
     }
 };
 
-template <typename T>
+template<typename T>
 class Square: public Figure<T> {
+    virtual bool check() const override {
+        return !(fabs(this -> vertices[0].distance(this -> vertices[1]) - this -> vertices[0].distance(this -> vertices[3])) > EPS
+            or fabs(this -> vertices[0].distance(this -> vertices[2]) != this -> vertices[1].distance(this -> vertices[3])) > EPS);
+    }
+    
 public:
     Square(): Figure<T>(4) {}
 
@@ -226,7 +231,8 @@ public:
         this -> vertices[1] = b;
         this -> vertices[2] = c;
         this -> vertices[3] = d;
-        this -> check();
+        if (!check())
+            throw invalid_argument("IMPOSSIBLE_SQUARE");
     }
 
     friend istream& operator >>(istream& is, Square<T>& f) {
@@ -235,7 +241,7 @@ public:
             is >> x >> y;
             f.vertices[i] = Point<T>(x, y);
         }
-        if(!f.check())
+        if (!f.check())
             throw invalid_argument("IMPOSSIBLE_SQUARE");
         return is;
     }
@@ -249,17 +255,21 @@ public:
     }
 };
 
-template <typename T>
+template<typename T>
 class Rectangle: public Figure<T> {
+    virtual bool check() const override {
+        return !(fabs(this -> vertices[0].distance(this -> vertices[1]) - this -> vertices[2].distance(this -> vertices[3])) > EPS
+            or fabs(this -> vertices[0].distance(this -> vertices[2]) - this -> vertices[1].distance(this -> vertices[3])) > EPS);
+    }
 public:
     Rectangle(): Figure<T>(4) {}
 
     T length() const {
-        return max(this -> vertices[0].distance(this->vertices[1]), this->vertices[0].distance(this->vertices[3]));
+        return max(this -> vertices[0].distance(this -> vertices[1]), this -> vertices[0].distance(this -> vertices[3]));
     }
 
     T width() const {
-        return min(this -> vertices[0].distance(this->vertices[1]), this->vertices[0].distance(this->vertices[3]));
+        return min(this -> vertices[0].distance(this -> vertices[1]), this -> vertices[0].distance(this -> vertices[3]));
     }
 
     T area() const override {
@@ -271,7 +281,8 @@ public:
         this -> vertices[1] = b;
         this -> vertices[2] = c;
         this -> vertices[3] = d;
-        this -> check();
+        if (!check())
+            throw invalid_argument("IMPOSSIBLE_RECTANGLE");
     }
 
     friend istream& operator >>(istream& is, Rectangle<T>& f) {
@@ -294,21 +305,28 @@ public:
     }
 };
 
-template <typename T>
+template<typename T>
 class Trapezoid: public Figure<T> {
+    virtual bool check() const override {
+        return !((parallel(this -> vertices[0], this -> vertices[1], this -> vertices[2], this -> vertices[3]) 
+            and not parallel(this -> vertices[0], this -> vertices[2], this -> vertices[1], this -> vertices[3]))
+            or (parallel(this -> vertices[0], this -> vertices[2], this -> vertices[1], this -> vertices[3]) 
+            and not parallel(this -> vertices[0], this -> vertices[1], this -> vertices[2], this -> vertices[3])));
+    }
+    
 public:
     Trapezoid(): Figure<T>(4) {}
     
     T top() const {
-        if (parallel(vertices[0], vertices[1], vertices[2], vertices[3]))
-            return min(this->vertices[0].distance(this->vertices[1]), this->vertices[2].distance(this->vertices[3]));
-        return min(this->vertices[1].distance(this->vertices[2]), this->vertices[3].distance(this->vertices[0]));
+        if (parallel(this -> vertices[0], this -> vertices[1], this -> vertices[2], this -> vertices[3]))
+            return min(this -> vertices[0].distance(this -> vertices[1]), this -> vertices[2].distance(this -> vertices[3]));
+        return min(this -> vertices[1].distance(this -> vertices[2]), this -> vertices[3].distance(this -> vertices[0]));
     }
 
     T bottom() const {
-        if (parallel(this->vertices[0], this->vertices[1], this->vertices[2], this->vertices[3]))
-            return max(this->vertices[0].distance(this->vertices[1]), this->vertices[2].distance(this->vertices[3]));
-        return max(this->vertices[1].distance(this->vertices[2]), this->vertices[3].distance(this->vertices[0]));
+        if (parallel(this -> vertices[0], this -> vertices[1], this -> vertices[2], this -> vertices[3]))
+            return max(this -> vertices[0].distance(this -> vertices[1]), this -> vertices[2].distance(this -> vertices[3]));
+        return max(this -> vertices[1].distance(this -> vertices[2]), this -> vertices[3].distance(this -> vertices[0]));
     }
 
     T height() const {
@@ -320,7 +338,8 @@ public:
         this -> vertices[1] = b;
         this -> vertices[2] = c;
         this -> vertices[3] = d;
-        this -> check();
+        if (!check())
+            throw invalid_argument("IMPOSSIBLE_TRAPEZOID");
     }
 
     friend istream& operator >>(istream& is, Trapezoid<T>& f) {
