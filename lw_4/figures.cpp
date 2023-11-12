@@ -2,6 +2,8 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
+#include <vector>
+#include <stdexcept>
 
 #define EPS 1e-6
 #define RUDE_EPS 0.1
@@ -9,6 +11,17 @@
 using namespace std;
 
 template <typename T>
+concept Number = requires(T a, T b) {
+    {a + b} -> same_as<T>;
+    {a - b} -> same_as<T>;
+    {a / b} -> same_as<T>;
+    {a == b} -> convertible_to<bool>;
+    {a != b} -> convertible_to<bool>;
+    {fabs(a)} -> same_as<T>;
+    {sqrt(a)} -> same_as<T>;
+};
+
+template <Number T>
 struct Point {
     T x, y;
 
@@ -59,7 +72,6 @@ struct Point {
         return is >> p.x >> p.y;
     }
 };
-
 template <typename T>
 bool parallel(const Point<T>& p1, const Point<T>& p2, const Point<T>& p3, const Point<T>& p4) {
     if (fabs(p1.x - p2.x) < EPS && fabs(p3.x - p4.x) < EPS)
@@ -363,36 +375,66 @@ public:
     }
 };
 
+template<typename T>
+class Array {
+    vector<Figure<T>*> data;
+
+public:
+    Array() = default;
+
+    ~Array() {
+        for(auto element: data)
+            delete element;
+    }
+
+    void add(Figure<T>* figure) {
+        data.push_back(figure);
+    }
+
+    void remove(int index) {
+        if(index < 0 or index >= data.size())
+            throw invalid_argument("INVALID_INDEX");
+        delete data[index];
+        data.erase(data.begin() + index);
+    }
+
+    Figure<T>* operator[](int index) {
+        if(index < 0 or index >= data.size())
+            throw invalid_argument("INVALID_INDEX");
+        return new Figure<T>(*data[index]);
+    }
+
+    int size() const {
+        return data.size();
+    }
+};
+
 int main() {
-    Figure<float> f;
+    Array<float> figures;
     cout << "Figure!\n";
-    cin >> f;
-    cout << f;
-    
-    cout << "\nSquare!\n";
-    Square<float> s;
-    Point<float> a(0, 0), b(0, 2), c(2, 2), d(2, 0);
-    s.add_points(a, b, c, d);
-    cout << s;
-    
-    cout << "\nRectangle!\n";
-    Rectangle<float> r;
-    cin >> r;
-    cout << r;
-    
-    cout << "\nTrapezoid!\n";
-    Trapezoid<float> t_0;
-    cin >> t_0;
-    cout << t_0;
-    
-    cout << "\nAnother Trapezoid!\n";
-    Trapezoid<float> t_1;
-    cin >> t_1;
-    cout << t_1;
-    
-    if(t_0 == t_1)
-        cout << "\nTrapezoids are equal!";
-    else
-        cout << "\nTrapezoids are not equal!";
+    Figure<float> *f = new Figure<float>;
+    cin >> *f;
+    figures.add(f);
+    cout << "Square!\n";
+    Square<float> *s = new Square<float>;
+    cin >> *s;
+    figures.add(s);
+    cout << "Rectangle!\n";
+    Rectangle<float> *r = new Rectangle<float>;
+    cin >> *r;
+    figures.add(r);
+    cout << "Trapezoid!\n";
+    Trapezoid<float> *t = new Trapezoid<float>;
+    cin >> *t;
+    figures.add(t);
+    for(int i = 0; i < figures.size(); ++i) {
+        Figure<float>* fig = figures[i];
+        cout << *fig;
+        delete fig;
+    }
+    delete f;
+    delete s;
+    delete r;
+    delete t;
     return 0;
 }
