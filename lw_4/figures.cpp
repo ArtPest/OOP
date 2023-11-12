@@ -15,10 +15,10 @@ concept Number = requires(T a, T b) {
     {a + b} -> same_as<T>;
     {a - b} -> same_as<T>;
     {a / b} -> same_as<T>;
-    {a == b} -> convertible_to<bool>;
-    {a != b} -> convertible_to<bool>;
     {fabs(a)} -> same_as<T>;
     {sqrt(a)} -> same_as<T>;
+    {a == b} -> convertible_to<bool>;
+    {a != b} -> convertible_to<bool>;
 };
 
 template <Number T>
