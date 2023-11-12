@@ -39,6 +39,24 @@ TEST(trapezoid_test, top_test) {
     EXPECT_FLOAT_EQ(top, 1.0);
 }
 
+TEST(figure_test, array_test) {
+    Figure<float> *f = new Figure<float>;
+    Array<float> figures;
+    Point<float> p1(0.0, 0.0);
+    Point<float> p2(1.0, 3.0);
+    Point<float> p3(2.0, 0.0);
+    f.add_point(p1);
+    f.add_point(p2);
+    f.add_point(p3);
+    ostringstream os;
+    figures.add(f);
+    Figure<float>* fig = figures[0];
+    os << *fig;
+    delete fig;
+    string s = "Coordinates:\n(0, 0)\n(1, 3)\n(2, 0)\nCenter: (1, 1)\nArea: 3";
+    EXPECT_STRING_EQ(os.str(), s);
+}
+
 TEST(figure_test, istream_test) {
     istringstream is("3 0 0 1 3 2 0");
     figure<float> f;
