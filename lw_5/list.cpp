@@ -8,11 +8,6 @@ template<typename T>
 struct Node {
     T value;
     Node<T>* next;
-    
-    friend ostream& operator <<(ostream& os, const Node& it) {
-        os << it.value << '\n';
-        return os;
-    }
 };
 
 template<class T, size_t BLOCK_SIZE>
@@ -161,17 +156,16 @@ public:
 
 int main() {
     map<int, int, less<int>, Allocator<pair<const int, int>, 10>> m;
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 5; ++i)
         m[i] = i * 10;
     for(const auto& i: m)
         cout << i.first << " " << i.second << '\n';
     List<int, 10, Allocator<int, 10>> list;
-    list.push_front(42);
-    list.push_front(21);
-    list.push_front(84);
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
     for(auto it = list.begin(); it != list.end(); ++it)
         cout << *it << " ";
     cout << '\n';
     return 0;
 }
-
