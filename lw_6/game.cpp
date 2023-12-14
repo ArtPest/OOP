@@ -97,7 +97,7 @@ public:
 };
 
 int main() {
-    Board board(10, 10);
+    Board board(8, 8);
     board.add_npc(npc_factory::create_npc("Arthur", "Knight", 0, 0));
     board.add_npc(npc_factory::create_npc("Squishy", "Squirrel", 3, 4));
     board.cycle(5);
