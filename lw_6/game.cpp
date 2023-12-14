@@ -87,8 +87,8 @@ public:
     
     void get_info() {
         cout << "Now alive:\n\n";
-        for(size_t i = 0; i < figures.size(); ++i)
-            cout << figures[i] << '\n';
+        for(npc figure: figures)
+            cout << figure << '\n';
     }
     
     void add_npc(const npc& figure) {
