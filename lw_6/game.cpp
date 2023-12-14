@@ -6,20 +6,27 @@
 
 using namespace std;
 
-class NPC {
+class npc;
+
+class npc_factory {
+public:
+    static npc create_npc(const string& name, const string& type, int x, int y);
+};
+
+class npc {
     int x, y;
     string name, type, enemy = "default";
     bool status = true;
     
 public:
-    NPC() = default;
-    NPC(const string& _name, const string& _type, int _x, int _y): name(_name), type(_type), x(_x), y(_y) {
+    npc() = default;
+    npc(const string& _name, const string& _type, int _x, int _y): name(_name), type(_type), x(_x), y(_y) {
         if(type == "Knight")
             enemy = "Squirrel";
         else if(type == "Squirrel")
             enemy = "Pegasus";
     }
-    ~NPC() = default;
+    ~npc() = default;
     
     string get_name() const { return name; }
     string get_type() const { return type; }
@@ -31,26 +38,32 @@ public:
         status = effect;
     }
     
-    int sqr_distance(const NPC& other) {
+    int sqr_distance(const npc& other) const {
         return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y);
     }
     
-    void attack(NPC& other, int radius) {
+    void capture(npc& other, int radius) {
         if((other.get_type() == enemy) and sqr_distance(other) <= radius * radius)
             other.set_status(false);
     }
     
-    friend ostream& operator<<(ostream& os, const NPC& npc) {
-        os << "Name: " << npc.name << '\n';
-        os << "Type: " << npc.type << '\n';
-        os << "Coordinates: (" << npc.x << ", " << npc.y << ")" << '\n';
+    friend ostream& operator <<(ostream& os, const npc& figure) {
+        os << "Name: " << figure.name << '\n';
+        os << "Type: " << figure.type << '\n';
+        os << "Coordinates: (" << figure.x << ", " << figure.y << ")" << '\n';
         return os;
     }
+    
+    friend npc npc_factory::create_npc(const string& name, const string& type, int x, int y);
 };
+
+npc npc_factory::create_npc(const string& name, const string& type, int x, int y) {
+    return npc(name, type, x, y);
+}
 
 class Board {
     int n, m;
-    vector<NPC> figures;
+    vector<npc> figures;
     
 public:
     Board() = default;
@@ -64,8 +77,8 @@ public:
     void cycle(int radius) {
         for(size_t i = 0; i < figures.size() - 1; ++i)
             for(size_t j = i + 1; j < figures.size(); ++j) {
-                figures[i].attack(figures[j], radius);
-                figures[j].attack(figures[i], radius);
+                figures[i].capture(figures[j], radius);
+                figures[j].capture(figures[i], radius);
             }
         for(size_t i = 0; i < figures.size(); ++i)
             if(figures[i].get_status() == false)
@@ -77,12 +90,16 @@ public:
         for(size_t i = 0; i < figures.size(); ++i)
             cout << figures[i] << '\n';
     }
+    
+    void add_npc(const npc& figure) {
+        figures.push_back(figure);
+    }
 };
 
 int main() {
     Board board(10, 10);
-    board.add_npc("Arthur", "Knight", 0, 0);
-    board.add_npc("Percy", "Squirrel", 3, 4);
+    board.add_npc(npc_factory::create_npc("Arthur", "Knight", 0, 0));
+    board.add_npc(npc_factory::create_npc("Squishy", "Squirrel", 3, 4));
     board.cycle(5);
     board.get_info();
     return 0;
