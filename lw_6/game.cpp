@@ -47,10 +47,10 @@ public:
             other.set_status(false);
     }
     
-    friend ostream& operator <<(ostream& os, const npc& figure) {
-        os << "Name: " << figure.name << '\n';
-        os << "Type: " << figure.type << '\n';
-        os << "Coordinates: (" << figure.x << ", " << figure.y << ")" << '\n';
+    friend ostream& operator <<(ostream& os, const npc& piece) {
+        os << "Name: " << piece.name << '\n';
+        os << "Type: " << piece.type << '\n';
+        os << "Coordinates: (" << piece.x << ", " << piece.y << ")" << '\n';
         return os;
     }
     
@@ -63,36 +63,32 @@ npc npc_factory::create_npc(const string& name, const string& type, int x, int y
 
 class Board {
     int n, m;
-    vector<npc> figures;
+    vector<npc> pieces;
     
 public:
     Board() = default;
     Board(int _n, int _m): n(_n), m(_m) {}
     ~Board() = default;
     
-    void add_npc (const string& _name, const string& _type, int _x, int _y) {
-        figures.emplace_back(_name, _type, _x, _y);
-    }
-    
     void cycle(int radius) {
-        for(size_t i = 0; i < figures.size() - 1; ++i)
-            for(size_t j = i + 1; j < figures.size(); ++j) {
-                figures[i].capture(figures[j], radius);
-                figures[j].capture(figures[i], radius);
+        for(size_t i = 0; i < pieces.size() - 1; ++i)
+            for(size_t j = i + 1; j < pieces.size(); ++j) {
+                pieces[i].capture(pieces[j], radius);
+                pieces[j].capture(pieces[i], radius);
             }
-        for(size_t i = 0; i < figures.size(); ++i)
-            if(figures[i].get_status() == false)
-                figures.erase(figures.begin() + i--);
+        for(size_t i = 0; i < pieces.size(); ++i)
+            if(pieces[i].get_status() == false)
+                pieces.erase(pieces.begin() + i--);
     }
     
     void get_info() {
         cout << "Now alive:\n\n";
-        for(npc figure: figures)
-            cout << figure << '\n';
+        for(npc piece: pieces)
+            cout << piece << '\n';
     }
     
-    void add_npc(const npc& figure) {
-        figures.push_back(figure);
+    void add_npc(const npc& piece) {
+        pieces.push_back(piece);
     }
 };
 
