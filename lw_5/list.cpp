@@ -64,6 +64,10 @@ template<typename T>
 concept Node = requires(T node) {
     { node.value } -> convertible_to<typename T::value_type>;
     { node.next } -> convertible_to<T*>;
+} or requires(T node) {
+    { node.value } -> convertible_to<typename T::value_type>;
+    { node.next } -> convertible_to<T*>;
+    { node.prev } -> convertible_to<T*>;
 };
 
 template<Node T>
