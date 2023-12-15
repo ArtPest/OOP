@@ -78,8 +78,8 @@ public:
     using value_type = typename T::value_type;
     using pointer = value_type*;
     using reference = value_type&;
-    using difference_type = std::ptrdiff_t;
-    using iterator_category = std::bidirectional_iterator_tag;
+    using difference_type = ptrdiff_t;
+    using iterator_category = bidirectional_iterator_tag;
 
     Iterator(T* p = nullptr): ptr(p) {}
 
