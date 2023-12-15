@@ -171,11 +171,13 @@ public:
     }
 
     T& front() {
-        return head->value;
+        if(head)
+            return head->value;
     }
 
     const T& front() const {
-        return head->value;
+        if(head)
+            return head->value;
     }
 
     iterator begin() {
