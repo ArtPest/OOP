@@ -36,7 +36,7 @@ public:
     }
 
     pointer allocate(size_type num, const void* hint = 0) {
-        if (_memory_size + num > BLOCK_SIZE)
+        if(_memory_size + num > BLOCK_SIZE)
             throw bad_alloc();
         pointer result = &_memory[_memory_size];
         _memory_size += num;
@@ -147,7 +147,7 @@ public:
     List(): head(nullptr) {}
 
     ~List() {
-        while (head) {
+        while(head) {
             Node* temp = head;
             head = head->next;
             allocator.destroy(temp);
