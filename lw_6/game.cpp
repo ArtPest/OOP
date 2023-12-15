@@ -88,6 +88,9 @@ public:
     }
     
     void add_npc(const npc& piece) {
+        if(piece.get_x() > n or piece.get_y() > m or !(piece.get_name() != "Knight" and 
+            piece.get_name() != "Squirrel" and piece.get_name() != "Pegasus"))
+            throw invalid_argument("IMPOSSIBLE_PIECE");
         pieces.push_back(piece);
     }
 };
