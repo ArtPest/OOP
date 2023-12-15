@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <map>
+#include <concepts>
 
 using namespace std;
 
@@ -59,19 +60,24 @@ public:
     }
 };
 
-template <typename T>
+template<typename T>
+concept Node = requires(T node) {
+    { node.value } -> convertible_to<typename T::value_type>;
+    { node.next } -> convertible_to<T*>;
+};
+
+template<Node T>
 class Iterator {
-    using Node = typename T::NodeType;
-    Node* ptr;
+    T* ptr;
 
 public:
-    using value_type = typename T::ValueType;
-    using pointer = typename T::ValueType*;
-    using reference = typename T::ValueType&;
-    using difference_type = ptrdiff_t;
-    using iterator_category = bidirectional_iterator_tag;
+    using value_type = typename T::value_type;
+    using pointer = value_type*;
+    using reference = value_type&;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = std::bidirectional_iterator_tag;
 
-    Iterator(Node* p = nullptr): ptr(p) {}
+    Iterator(T* p = nullptr): ptr(p) {}
 
     reference operator *() const {
         return ptr->value;
@@ -116,6 +122,7 @@ public:
 template<typename T, size_t BLOCK_SIZE, template<class, size_t> class Alloc>
 class List {
     struct Node {
+        using value_type = T;
         T value;
         Node* next;
 
@@ -130,8 +137,8 @@ class List {
 public:
     using NodeType = Node;
     using ValueType = T;
-    using iterator = Iterator<List<T, BLOCK_SIZE, Alloc>>;
-    using const_iterator = Iterator<const List<T, BLOCK_SIZE, Alloc>>;
+    using iterator = Iterator<Node>;
+    using const_iterator = Iterator<Node>;
 
     List(): head(nullptr) {}
 
