@@ -160,13 +160,12 @@ public:
 private:
     template <typename T>
     void engage_in_battle(T& aggressor) {
-        for (auto& piece : game.get_pieces()) {
+        for (auto& piece : game.get_pieces())
             if (piece->get_status() == npc_status::alive &&
                 aggressor.get_enemy_type() == piece->get_type() && 
                 npc::sqr_distance(aggressor, *piece) <= radius * radius) {
                 to_remove.push_back(piece->get_name());
             }
-        }
     }
 };
 
