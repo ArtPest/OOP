@@ -90,27 +90,22 @@ public:
     Board(int _n, int _m) : n(_n), m(_m) {}
 
     void cycle(int radius) {
-        for (size_t i = 0; i < pieces.size(); ++i) {
-            for (size_t j = 0; j < pieces.size(); ++j) {
+        for (size_t i = 0; i < pieces.size(); ++i)
+            for (size_t j = 0; j < pieces.size(); ++j)
                 if (i != j) pieces[i]->capture(*pieces[j], radius);
-            }
-        }
-
-        for (size_t i = 0; i < pieces.size();) {
+                
+        for (size_t i = 0; i < pieces.size();)
             if (pieces[i]->get_status() == npc_status::dead) {
                 captured.insert(pieces[i]->get_name());
                 pieces.erase(pieces.begin() + i);
-            } else {
+            } else
                 ++i;
-            }
-        }
     }
 
     void get_info() {
         cout << "Now alive:\n\n";
-        for (const auto& piece : pieces) {
+        for (const auto& piece : pieces)
             cout << *piece << '\n';
-        }
     }
 
     void add_npc(unique_ptr<npc> piece) {
