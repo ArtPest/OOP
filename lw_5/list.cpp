@@ -188,13 +188,13 @@ public:
         return iterator(nullptr);
     }
 
-    /*const_iterator begin() const {
+    *const_iterator cbegin() const {
         return const_iterator(head);
     }
 
-    const_iterator end() const {
+    const_iterator cend() const {
         return const_iterator(nullptr);
-    }*/
+    }
 };
 
 
