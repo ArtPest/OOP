@@ -1,0 +1,32 @@
+TEST(npc_test, create_npc) {
+    auto knight = npc_factory::create_npc("Arthur", npc_type::knight, 0, 0);
+    EXPECT_EQ("Arthur", knight->get_name());
+    EXPECT_EQ(npc_type::knight, knight->get_type());
+    EXPECT_EQ(0, knight->get_x());
+    EXPECT_EQ(0, knight->get_y());
+}
+
+TEST(npc_test, check_status) {
+    auto knight = npc_factory::create_npc("Arthur", npc_type::knight, 0, 0);
+    knight->set_status(npc_status::alive);
+    EXPECT_EQ(npc_status::alive, knight->get_status());
+}
+
+TEST(board_test, add_npc) {
+    board game(10, 10);
+    game.add_npc(npc_factory::create_npc("Knight", npc_type::knight, 5, 5));
+    game.add_npc(npc_factory::create_npc("Squirrel", npc_type::squirrel, 6, 6));
+    const auto& pieces = game.get_pieces();
+    EXPECT_EQ(2, pieces.size());
+    EXPECT_EQ("Knight", pieces[0]->get_name());
+    EXPECT_EQ("Squirrel", pieces[1]->get_name());
+}
+
+TEST(board_test, try_cycle) {
+    board game(10, 10);
+    game.add_npc(npc_factory::create_npc("Knight", npc_type::knight, 0, 0));
+    game.add_npc(npc_factory::create_npc("Squirrel", npc_type::squirrel, 3, 4));
+    game.cycle(game.get_radius());
+    const auto& pieces = game.get_pieces();
+    EXPECT_EQ(npc_status::dead, pieces[1]->get_status());
+}
