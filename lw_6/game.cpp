@@ -13,19 +13,11 @@ enum class npc_status { dead, alive };
 
 ostream& operator <<(ostream& os, const npc_type& type) {
     switch(type) {
-        case npc_type::knight:
-            os << "knight";
-            break;
-        case npc_type::squirrel:
-            os << "squirrel";
-            break;
-        case npc_type::pegasus:
-            os << "pegasus";
-            break;
-        default:
-            throw invalid_argument("IMPOSSIBLE_TYPE");
+        case npc_type::knight: return os << "knight";
+        case npc_type::squirrel: return os << "squirrel";
+        case npc_type::pegasus: return os << "pegasus";
+        default: throw invalid_argument("IMPOSSIBLE_TYPE");
     }
-    return os;
 }
 
 class Knight;
@@ -66,7 +58,7 @@ public:
         return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
     }
 
-    friend ostream& operator<<(ostream& os, const npc& piece) {
+    friend ostream& operator <<(ostream& os, const npc& piece) {
         os << "Name: " << piece.name << '\n';
         os << "Type: " << piece.type << '\n';
         os << "Coordinates: (" << piece.x << ", " << piece.y << ")" << '\n';
