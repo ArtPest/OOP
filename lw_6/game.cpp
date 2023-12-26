@@ -11,6 +11,23 @@ using namespace std;
 enum class npc_type { knight, squirrel, pegasus };
 enum class npc_status { dead, alive };
 
+ostream& operator <<(ostream& os, const npc_type& type) {
+    switch(type) {
+        case npc_type::knight:
+            os << "knight";
+            break;
+        case npc_type::squirrel:
+            os << "squirrel";
+            break;
+        case npc_type::pegasus:
+            os << "pegasus";
+            break;
+        default:
+            throw invalid_argument("IMPOSSIBLE_TYPE");
+    }
+    return os;
+}
+
 class Knight;
 class Squirrel;
 class Pegasus;
@@ -51,7 +68,7 @@ public:
 
     friend ostream& operator<<(ostream& os, const npc& piece) {
         os << "Name: " << piece.name << '\n';
-        os << "Type: " << static_cast<int>(piece.type) << '\n';
+        os << "Type: " << piece.type << '\n';
         os << "Coordinates: (" << piece.x << ", " << piece.y << ")" << '\n';
         return os;
     }
@@ -94,7 +111,7 @@ public:
             case npc_type::knight: return make_unique<Knight>(name, x, y);
             case npc_type::squirrel: return make_unique<Squirrel>(name, x, y);
             case npc_type::pegasus: return make_unique<Pegasus>(name, x, y);
-            default: throw invalid_argument("Unknown NPC type");
+            default: throw invalid_argument("IMPOSSIBLE_TYPE");
         }
     }
 };
