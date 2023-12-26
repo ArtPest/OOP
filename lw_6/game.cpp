@@ -5,11 +5,13 @@
 #include <set>
 #include <algorithm>
 #include <memory>
+#include <list>
+#include <sstream>
 
 using namespace std;
 
 enum class npc_type { knight, squirrel, pegasus };
-enum class npc_status { dead, alive };
+enum class npc_status { alive, beaten, dead };
 
 ostream& operator <<(ostream& os, const npc_type& type) {
     switch(type) {
@@ -19,6 +21,47 @@ ostream& operator <<(ostream& os, const npc_type& type) {
         default: throw invalid_argument("IMPOSSIBLE_TYPE");
     }
 }
+
+class observer {
+public:
+    virtual ~observer() = default;
+    virtual void update(const string& message) = 0;
+};
+
+class subject {
+public:
+    virtual ~subject() = default;
+    virtual void attach(observer* o) = 0;
+    virtual void detach(observer* o) = 0;
+    virtual void notify(const string& message) = 0;
+};
+
+class terminal_observer: public observer {
+public:
+    void update(const string& message) override {
+        cout << message;
+    }
+};
+
+class file_observer : public observer {
+private:
+    ofstream log_file;
+
+public:
+    file_observer(const string& filename) {
+        log_file.open(filename, ios_base::app);
+    }
+
+    ~file_observer() {
+        if (log_file.is_open())
+            log_file.close();
+    }
+
+    void update(const string& message) override {
+        if (log_file.is_open())
+            log_file << message;
+    }
+};
 
 class Knight;
 class Squirrel;
@@ -110,10 +153,11 @@ public:
 
 class fight_visitor;
 
-class board {
+class board: public subject {
     int n, m;
     vector<unique_ptr<npc>> pieces;
     set<string> captured;
+    list<observer*> observers;
 
 public:
     board(int _n, int _m) : n(_n), m(_m) {}
@@ -121,7 +165,7 @@ public:
     void cycle(int radius);
     
     void get_info() const {
-        cout << "Now alive:\n\n";
+        cout << "\nNow alive:\n";
         for (const auto& piece : pieces)
             cout << *piece << '\n';
     }
@@ -135,6 +179,19 @@ public:
     int get_radius() const { return max(n, m); }
 
     auto& get_pieces() { return pieces; }
+    
+        void attach(observer* o) override {
+        observers.push_back(o);
+    }
+
+    void detach(observer* o) override {
+        observers.remove(o);
+    }
+
+    void notify(const string& message) override {
+        for (observer* i: observers)
+            i->update(message);
+    }
 };
 
 class fight_visitor : public npc_visitor {
@@ -173,6 +230,7 @@ private:
             if (piece->get_status() == npc_status::alive &&
                 aggressor.get_enemy_type() == piece->get_type() && 
                 npc::sqr_distance(aggressor, *piece) <= radius * radius) {
+                piece->set_status(npc_status::beaten);    
                 to_remove.push_back(piece->get_name());
             }
     }
@@ -182,21 +240,40 @@ void board::cycle(int radius) {
     fight_visitor visitor(*this, radius);
     
     for (auto& piece : pieces)
-        if (piece->get_status() == npc_status::alive)
+        if (piece->get_status() != npc_status::dead)
             piece->accept(visitor);
-
+    
+    ostringstream message;
+    
+    for (auto it = pieces.begin(); it != pieces.end(); ++it) {
+        auto& piece = *it;
+        if (piece->get_status() == npc_status::beaten) {
+            message << piece->get_name() << " has been killed.\n";
+            piece->set_status(npc_status::dead);
+        }
+    }
+    
     visitor.remove_defeated();
+    
+    message << "\nAfter the battle:\n";
+    for (const auto& piece : pieces)
+        message << *piece << '\n';
+        
+    notify(message.str());
 }
 
 int main() {
     board game(8, 8);
+    terminal_observer terminal_record;
+    file_observer file_record("log.txt");
+    game.attach(&terminal_record);
+    game.attach(&file_record);
     game.add_npc(npc_factory::create_npc("Arthur", npc_type::knight, 0, 0));
     game.add_npc(npc_factory::create_npc("Squishy", npc_type::squirrel, 3, 4));
     game.add_npc(npc_factory::create_npc("Cloud", npc_type::pegasus, 5, 5));
-    cout << "Before the battle:\n";
     game.get_info();
     game.cycle(5);
-    cout << "After the battle:\n";
-    game.get_info();
+    game.detach(&terminal_record);
+    game.detach(&file_record);
     return 0;
 }
