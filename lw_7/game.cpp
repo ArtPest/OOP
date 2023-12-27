@@ -356,16 +356,6 @@ int main() {
         });
     }
 
-    threads.emplace_back([&game, &cout_mutex, &game_active]() {
-        while (game_active) {
-            this_thread::sleep_for(chrono::seconds(1));
-            {
-                lock_guard<mutex> cout_guard(cout_mutex);
-                game.get_info();
-            }
-        }
-    });
-
     thread timer_thread([&game_active, GAME_DURATION]() {
         this_thread::sleep_for(chrono::seconds(GAME_DURATION));
         game_active = false; 
@@ -377,10 +367,7 @@ int main() {
         if (t.joinable()) 
             t.join();
 
-    {
-        lock_guard<mutex> guard(cout_mutex);
-        game.get_info();
-    }
+    { lock_guard<mutex> guard(cout_mutex); }
 
     game.detach(&terminal_record);
     game.detach(&file_record);
