@@ -96,6 +96,11 @@ public:
     virtual npc_type get_enemy_type() const = 0;
 
     void set_status(npc_status effect) { status = effect; }
+    
+    void move(int _x, int _y) {
+        x = _x;
+        y = _y;
+    }
 
     static int sqr_distance(const npc& a, const npc& b) {
         return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
@@ -169,14 +174,32 @@ public:
         for (const auto& piece : pieces)
             cout << *piece << '\n';
     }
-
+    
     void add_npc(unique_ptr<npc> piece) {
-        if (piece->get_x() >= n || piece->get_y() >= m || captured.find(piece->get_name()) != captured.end())
+        if (piece->get_x() >= n || piece->get_y() >= m ||
+            piece->get_x() < 0 || piece->get_y() < 0 ||
+            captured.find(piece->get_name()) != captured.end())
             throw invalid_argument("IMPOSSIBLE_PIECE");
         pieces.push_back(move(piece));
     }
-
-    int get_radius() const { return max(n, m); }
+    
+    void move_npc(const string& npc_name, int new_x, int new_y) {
+        if (new_x < 0 || new_x >= n || new_y < 0 || new_y >= m) 
+            throw invalid_argument("IMPOSSIBLE_MOVEMENT");
+        for (auto& piece: pieces) {
+            if (piece->get_name() == npc_name && piece->get_status() == npc_status::alive) {
+                if (captured.find(npc_name) != captured.end())
+                    throw invalid_argument("DEAD_MOVEMENT");
+                ostringstream message;
+                message << piece->get_name() << " moves from (" << piece->get_x() << ", " << piece->get_y()
+                        << ") to (" << new_x << ", " << new_y << ").\n";
+                piece->move(new_x, new_y);
+                notify(message.str());
+                return;
+            }
+        }
+        throw invalid_argument("NAME_ERROR");
+    }
 
     auto& get_pieces() { return pieces; }
     
@@ -271,6 +294,7 @@ int main() {
     game.add_npc(npc_factory::create_npc("Arthur", npc_type::knight, 0, 0));
     game.add_npc(npc_factory::create_npc("Squishy", npc_type::squirrel, 3, 4));
     game.add_npc(npc_factory::create_npc("Cloud", npc_type::pegasus, 5, 5));
+    game.move_npc("Arthur", 1, 1);
     game.get_info();
     game.cycle(5);
     game.detach(&terminal_record);
