@@ -44,7 +44,7 @@ public:
 class terminal_observer: public observer {
 public:
     void update(const string& message) override {
-        cout << message;
+        cout << message << flush;
     }
 };
 
@@ -64,7 +64,7 @@ public:
 
     void update(const string& message) override {
         if (log_file.is_open())
-            log_file << message;
+            log_file << message << flush;
     }
 };
 
@@ -89,7 +89,8 @@ protected:
 public:
     npc(const string& _name, npc_type _type, int _x, int _y) : name(_name), type(_type), x(_x), y(_y) {}
     virtual ~npc() = default;
-
+    
+    virtual int move_distance() const = 0;
     virtual void accept(npc_visitor& visitor) = 0;
 
     string get_name() const { return name; }
@@ -121,6 +122,8 @@ public:
 
 class Knight : public npc {
 public:
+    static constexpr int attack_radius = 10;
+    int move_distance() const override { return 30; }
     Knight(const string& name, int x, int y) : npc(name, npc_type::knight, x, y) {}
     npc_type get_enemy_type() const override { return npc_type::squirrel; }
 
@@ -131,6 +134,8 @@ public:
 
 class Squirrel : public npc {
 public:
+    static constexpr int attack_radius = 5;
+    int move_distance() const override { return 5; }
     Squirrel(const string& name, int x, int y) : npc(name, npc_type::squirrel, x, y) {}
     npc_type get_enemy_type() const override { return npc_type::pegasus; }
 
@@ -141,6 +146,8 @@ public:
 
 class Pegasus : public npc {
 public:
+    static constexpr int attack_radius = 10;
+    int move_distance() const override { return 30; }
     Pegasus(const string& name, int x, int y) : npc(name, npc_type::pegasus, x, y) {}
     npc_type get_enemy_type() const override { return npc_type::knight; }
 
@@ -172,7 +179,7 @@ class board: public subject {
 public:
     board(int _n, int _m) : n(_n), m(_m) {}
     
-    void cycle(int radius);
+    void cycle();
     
     void get_info() const {
         cout << "\nNow alive:\n";
@@ -224,23 +231,20 @@ public:
 
 class fight_visitor : public npc_visitor {
     board& game;
-    int radius;
     vector<string> to_remove;
 
 public:
-    fight_visitor(board& b, int r) : game(b), radius(r) {}
+    fight_visitor(board& b) : game(b) {}
 
     void visit(Knight& knight) override {
-        engage_in_battle(knight);
+        engage_in_battle(knight, Knight::attack_radius);
     }
 
     void visit(Squirrel& squirrel) override {
-        engage_in_battle(squirrel);
+        engage_in_battle(squirrel, Squirrel::attack_radius);
     }
 
-    void visit(Pegasus& pegasus) override {
-        engage_in_battle(pegasus);
-    }
+    void visit(Pegasus& pegasus) override {}
 
     void remove_defeated() {
         for (auto& name : to_remove) {
@@ -253,7 +257,7 @@ public:
 
 private:
     template <typename T>
-    void engage_in_battle(T& aggressor) {
+    void engage_in_battle(T& aggressor, int radius) {
         for (auto& piece : game.get_pieces())
             if (piece->get_status() == npc_status::alive &&
                 aggressor.get_enemy_type() == piece->get_type() && 
@@ -264,8 +268,8 @@ private:
     }
 };
 
-void board::cycle(int radius) {
-    fight_visitor visitor(*this, radius);
+void board::cycle() {
+    fight_visitor visitor(*this);
     
     for (auto& piece : pieces)
         if (piece->get_status() != npc_status::dead)
@@ -305,14 +309,14 @@ int main() {
     
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<> dis_position(0, max(BOARD_WIDTH, BOARD_HEIGHT) - 1);
+    uniform_int_distribution<> dis(0, max(BOARD_WIDTH, BOARD_HEIGHT) - 1);
     vector<npc_type> npc_types = {npc_type::knight, npc_type::squirrel, npc_type::pegasus};
 
     for (int i = 0; i < NPC_COUNT; ++i) {
         string name = "NUMBER_" + to_string(i);
-        npc_type type = npc_types[dis_position(gen) % npc_types.size()];
-        int x = dis_position(gen);
-        int y = dis_position(gen);
+        npc_type type = npc_types[dis(gen) % npc_types.size()];
+        int x = dis(gen);
+        int y = dis(gen);
         game.add_npc(npc_factory::create_npc(name, type, x, y));
     }
 
@@ -320,11 +324,11 @@ int main() {
     game.attach(&file_record);
 
     for (auto& piece : game.get_pieces()) {
-        threads.emplace_back([&game, &piece, &gen, &dis_position, &cout_mutex, &game_active]() {
+        threads.emplace_back([&game, &piece, &gen, &dis, &cout_mutex, &game_active]() {
             while (game_active) {
                 lock_guard<mutex> lock(cout_mutex);
-                game.move_npc(piece->get_name(), dis_position(gen) % BOARD_WIDTH, dis_position(gen) % BOARD_HEIGHT);
-                game.cycle(dis_position(gen) % 30 + 1);
+                game.move_npc(piece->get_name(), dis(gen) % piece->move_distance() + 1, dis(gen) % dis(gen) % piece->move_distance() + 1);
+                game.cycle();
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         });
@@ -333,19 +337,21 @@ int main() {
     threads.emplace_back([&game, &cout_mutex, &game_active]() {
         while (game_active) {
             this_thread::sleep_for(chrono::seconds(1));
-            lock_guard<mutex> cout_guard(cout_mutex);
-            game.get_info();
+            {
+                lock_guard<mutex> cout_guard(cout_mutex);
+                game.get_info();
+            }
         }
     });
 
-    thread timer_thread([GAME_DURATION, &game_active]() {
+    thread timer_thread([&game_active, GAME_DURATION]() {
         this_thread::sleep_for(chrono::seconds(GAME_DURATION));
         game_active = false; 
     });
 
     timer_thread.join();
 
-    for (auto& t: threads) 
+    for (auto& t : threads) 
         if (t.joinable()) 
             t.join();
 
