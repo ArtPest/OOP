@@ -9,7 +9,7 @@ TEST(allocator_test, map_example) {
 }
 
 TEST(list_test, it_using) {
-    List<int, 10, Allocator<int, 10>> list;
+    List<int, 10, Allocator> list;
     list.push_front(1);
     list.push_front(2);
     list.push_front(3);
