@@ -7,6 +7,11 @@
 #include <memory>
 #include <list>
 #include <sstream>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <chrono>
+#include <random>
 
 using namespace std;
 
@@ -286,18 +291,70 @@ void board::cycle(int radius) {
 }
 
 int main() {
-    board game(8, 8);
+    const int NPC_COUNT = 50;
+    const int BOARD_WIDTH = 100;
+    const int BOARD_HEIGHT = 100;
+    const int GAME_DURATION = 30;
+
+    board game(BOARD_WIDTH, BOARD_HEIGHT);
     terminal_observer terminal_record;
     file_observer file_record("log.txt");
+    mutex cout_mutex;
+    vector<thread> threads;
+    atomic<bool> game_active(true);
+    
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis_position(0, max(BOARD_WIDTH, BOARD_HEIGHT) - 1);
+    vector<npc_type> npc_types = {npc_type::knight, npc_type::squirrel, npc_type::pegasus};
+
+    for (int i = 0; i < NPC_COUNT; ++i) {
+        string name = "NPC_" + to_string(i);
+        npc_type type = npc_types[dis_position(gen) % npc_types.size()];
+        int x = dis_position(gen);
+        int y = dis_position(gen);
+        game.add_npc(npc_factory::create_npc(name, type, x, y));
+    }
+
     game.attach(&terminal_record);
     game.attach(&file_record);
-    game.add_npc(npc_factory::create_npc("Arthur", npc_type::knight, 0, 0));
-    game.add_npc(npc_factory::create_npc("Squishy", npc_type::squirrel, 3, 4));
-    game.add_npc(npc_factory::create_npc("Cloud", npc_type::pegasus, 5, 5));
-    game.move_npc("Arthur", 1, 1);
-    game.get_info();
-    game.cycle(5);
+
+    for (auto& piece : game.get_pieces()) {
+        threads.emplace_back([&game, &piece, &gen, &dis_position, &cout_mutex, &game_active]() {
+            while (game_active) {
+                lock_guard<mutex> lock(cout_mutex);
+                game.move_npc(piece->get_name(), dis_position(gen) % 50, dis_position(gen) % 50);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        });
+    }
+
+    threads.emplace_back([&game, &cout_mutex, &game_active]() {
+        while (game_active) {
+            this_thread::sleep_for(chrono::seconds(1));
+            lock_guard<mutex> cout_guard(cout_mutex);
+            game.get_info();
+        }
+    });
+
+    thread timer_thread([GAME_DURATION, &game_active]() {
+        this_thread::sleep_for(chrono::seconds(GAME_DURATION));
+        game_active = false; 
+    });
+
+    timer_thread.join();
+
+    for (auto& t: threads) 
+        if (t.joinable()) 
+            t.join();
+
+    {
+        lock_guard<mutex> guard(cout_mutex);
+        game.get_info();
+    }
+
     game.detach(&terminal_record);
     game.detach(&file_record);
+
     return 0;
 }
