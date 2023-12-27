@@ -196,8 +196,8 @@ public:
     }
     
     void move_npc(const string& npc_name, int new_x, int new_y) {
-        if (new_x < 0 || new_x >= n || new_y < 0 || new_y >= m) 
-            throw invalid_argument("IMPOSSIBLE_MOVEMENT");
+        /*if (new_x < 0 || new_x >= n || new_y < 0 || new_y >= m) 
+            throw invalid_argument("IMPOSSIBLE_MOVEMENT");*/
         for (auto& piece: pieces) {
             if (piece->get_name() == npc_name && piece->get_status() == npc_status::alive) {
                 if (captured.find(npc_name) != captured.end())
@@ -256,15 +256,30 @@ public:
     }
 
 private:
+    mt19937 rng;
+
+    int roll_dice() {
+        uniform_int_distribution<> dice(1, 6);
+        return dice(rng);
+    }
+
     template <typename T>
     void engage_in_battle(T& aggressor, int radius) {
-        for (auto& piece : game.get_pieces())
+        for (auto& piece : game.get_pieces()) {
             if (piece->get_status() == npc_status::alive &&
-                aggressor.get_enemy_type() == piece->get_type() && 
+                aggressor.get_enemy_type() == piece->get_type() &&
                 npc::sqr_distance(aggressor, *piece) <= radius * radius) {
+
+                int attack_roll = roll_dice();
+                int defense_roll = roll_dice();
+
+                if(defense_roll >= attack_roll)
+                    continue;
+                
                 piece->set_status(npc_status::beaten);    
                 to_remove.push_back(piece->get_name());
             }
+        }
     }
 };
 
@@ -327,7 +342,14 @@ int main() {
         threads.emplace_back([&game, &piece, &gen, &dis, &cout_mutex, &game_active]() {
             while (game_active) {
                 lock_guard<mutex> lock(cout_mutex);
-                game.move_npc(piece->get_name(), dis(gen) % piece->move_distance() + 1, dis(gen) % dis(gen) % piece->move_distance() + 1);
+                if(dis(gen) % 4 == 0)
+                    game.move_npc(piece->get_name(), dis(gen) % piece->move_distance() + 1, dis(gen) % piece->move_distance() + 1);
+                else if(dis(gen) % 4 == 1)
+                    game.move_npc(piece->get_name(), dis(gen) % piece->move_distance() + 1, -dis(gen) % piece->move_distance() - 1);
+                else if(dis(gen) % 4 == 2)
+                    game.move_npc(piece->get_name(), -dis(gen) % piece->move_distance() - 1, dis(gen) % piece->move_distance() + 1);
+                else
+                    game.move_npc(piece->get_name(), -dis(gen) % piece->move_distance() - 1, -dis(gen) % piece->move_distance() + 1);
                 game.cycle();
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
