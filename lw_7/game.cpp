@@ -309,7 +309,7 @@ int main() {
     vector<npc_type> npc_types = {npc_type::knight, npc_type::squirrel, npc_type::pegasus};
 
     for (int i = 0; i < NPC_COUNT; ++i) {
-        string name = "NPC_" + to_string(i);
+        string name = "NUMBER_" + to_string(i);
         npc_type type = npc_types[dis_position(gen) % npc_types.size()];
         int x = dis_position(gen);
         int y = dis_position(gen);
@@ -323,7 +323,8 @@ int main() {
         threads.emplace_back([&game, &piece, &gen, &dis_position, &cout_mutex, &game_active]() {
             while (game_active) {
                 lock_guard<mutex> lock(cout_mutex);
-                game.move_npc(piece->get_name(), dis_position(gen) % 50, dis_position(gen) % 50);
+                game.move_npc(piece->get_name(), dis_position(gen) % BOARD_WIDTH, dis_position(gen) % BOARD_HEIGHT);
+                game.cycle(dis_position(gen) % 30 + 1);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         });
